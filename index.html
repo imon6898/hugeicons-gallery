@@ -422,6 +422,104 @@
         color: var(--ink);
       }
 
+      /* Style switcher */
+      .styles {
+        display: flex;
+        gap: 2px;
+        padding: 3px;
+        background: var(--surface-sunk);
+        border-radius: 9px;
+      }
+      .styles button {
+        padding: 7px 12px;
+        font-family: var(--ui);
+        font-size: 12.5px;
+        color: var(--ink-muted);
+        background: none;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .styles button:hover {
+        color: var(--ink);
+      }
+      .styles button[aria-pressed='true'] {
+        color: var(--accent-deep);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+      .styles button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      .styles button i {
+        font-style: normal;
+        font-size: 10px;
+        opacity: 0.6;
+        margin-left: 5px;
+      }
+
+      /* Local-folder loader for the Pro styles */
+      .loadpro {
+        margin-top: 22px;
+        padding: 26px 24px;
+        text-align: center;
+        background: var(--surface);
+        border: 1px dashed var(--hairline);
+        border-radius: 12px;
+      }
+      .loadpro[hidden] {
+        display: none;
+      }
+      .loadpro h2 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .loadpro p {
+        max-width: 60ch;
+        margin: 0 auto 18px;
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: var(--ink-muted);
+      }
+      .loadpro label {
+        display: inline-block;
+        padding: 10px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #fff;
+        background: var(--accent);
+        border-radius: 9px;
+        cursor: pointer;
+      }
+      .loadpro label:hover {
+        background: var(--accent-deep);
+      }
+      .loadpro input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+      .loadpro small {
+        display: block;
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--ink-faint);
+      }
+
+      .tile .g.pro svg {
+        display: block;
+        width: 1em;
+        height: 1em;
+      }
+      .tile .g.pro {
+        color: var(--ink);
+      }
+
       /* Category chips */
       .cats {
         display: flex;
@@ -735,7 +833,33 @@ SvgPicture.asset(
         <div class="tally" id="tally"></div>
       </div>
 
+      <div class="styles" id="styles" role="group" aria-label="Icon style">
+        <button type="button" data-style="stroke" aria-pressed="true">Stroke</button>
+        <button type="button" data-style="solid">Solid<i>Pro</i></button>
+        <button type="button" data-style="twotone">Twotone<i>Pro</i></button>
+        <button type="button" data-style="duotone">Duotone<i>Pro</i></button>
+        <button type="button" data-style="bulk">Bulk<i>Pro</i></button>
+      </div>
+
       <div class="cats" id="cats" role="group" aria-label="Filter by category"></div>
+
+      <section class="loadpro" hidden id="loadpro">
+        <h2>Point this at your <span id="proName">duotone</span> folder</h2>
+        <p>
+          The Pro styles aren't in this repo and never will be — redistributing them
+          isn't allowed. So load them from your own disk instead: pick the unzipped
+          folder from your Hugeicons Pro download and they render right here, with the
+          same sections and search.
+        </p>
+        <label>
+          Choose folder
+          <input type="file" id="proInput" webkitdirectory directory multiple />
+        </label>
+        <small
+          >Your files never leave this machine — the page reads them locally and
+          uploads nothing.</small
+        >
+      </section>
 
       <div class="grid" id="grid"></div>
 
@@ -829,8 +953,16 @@ SvgPicture.asset(
           el.appendChild(k);
 
           el.dataset.sym = sym;
+          el.dataset.keb = keb;
           frag.appendChild(el);
-          rows.push({ el: el, hay: (sym + ' ' + keb).toLowerCase(), cat: ICONS[i][3] });
+          rows.push({
+            el: el,
+            g: g,
+            keb: keb,
+            ch: g.textContent,
+            hay: (sym + ' ' + keb).toLowerCase(),
+            cat: ICONS[i][3],
+          });
         }
         grid.appendChild(frag);
 
@@ -895,6 +1027,7 @@ SvgPicture.asset(
           var n = 0;
           for (var i = 0; i < rows.length; i++) {
             var hit =
+              hasArt(rows[i]) &&
               (!activeCat || rows[i].cat === activeCat) &&
               (!term || rows[i].hay.replace(/[-\s]/g, '').indexOf(term) !== -1);
             rows[i].el.hidden = !hit;
@@ -907,11 +1040,122 @@ SvgPicture.asset(
           empty.hidden = n !== 0;
         }
 
+        // --- Pro styles, read from the visitor's own disk -------------------
+        // The artwork is licensed for use, not redistribution, so it can never
+        // live in this repo. Reading it locally sidesteps that entirely: the
+        // files are parsed in the page and never sent anywhere.
+        var PRO = { solid: null, twotone: null, duotone: null, bulk: null };
+        var activeStyle = 'stroke';
+        var styleBar = document.getElementById('styles');
+        var loadpro = document.getElementById('loadpro');
+        var proName = document.getElementById('proName');
+        var proInput = document.getElementById('proInput');
+
+        // Painting 6,228 inline SVGs up front locks the tab; fill on approach.
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (en) {
+              if (!en.isIntersecting) return;
+              io.unobserve(en.target);
+              var lib = PRO[activeStyle];
+              var art = lib && lib[en.target.parentNode.dataset.keb];
+              if (art) en.target.innerHTML = art;
+            });
+          },
+          { rootMargin: '400px' }
+        );
+
+        function hasArt(r) {
+          if (activeStyle === 'stroke') return true;
+          var lib = PRO[activeStyle];
+          return !!(lib && lib[r.keb]);
+        }
+
+        function applyStyle() {
+          var pro = activeStyle !== 'stroke';
+          var loaded = !pro || !!PRO[activeStyle];
+          proName.textContent = activeStyle;
+          loadpro.hidden = loaded;
+          grid.hidden = !loaded;
+          cats.hidden = !loaded;
+
+          rows.forEach(function (r) {
+            r.g.textContent = '';
+            if (!pro) {
+              r.g.className = 'g';
+              r.g.textContent = r.ch;
+            } else {
+              r.g.className = 'g pro';
+              if (loaded && PRO[activeStyle][r.keb]) io.observe(r.g);
+            }
+          });
+          if (loaded) filter();
+        }
+
+        styleBar.addEventListener('click', function (e) {
+          var b = e.target.closest('button');
+          if (!b) return;
+          styleBar.querySelectorAll('button').forEach(function (o) {
+            o.removeAttribute('aria-pressed');
+          });
+          b.setAttribute('aria-pressed', 'true');
+          activeStyle = b.dataset.style;
+          applyStyle();
+        });
+
+        proInput.addEventListener('change', function () {
+          var all = Array.prototype.slice.call(proInput.files || []).filter(function (f) {
+            return /\.svg$/i.test(f.name);
+          });
+          if (!all.length) {
+            show('no .svg files in that folder');
+            return;
+          }
+          // If they picked the parent of all three styles, take only this one.
+          var scoped = all.filter(function (f) {
+            return (f.webkitRelativePath || '').toLowerCase().indexOf(activeStyle) !== -1;
+          });
+          var files = scoped.length ? scoped : all;
+
+          show('reading ' + files.length.toLocaleString() + ' files…');
+          Promise.all(
+            files.map(function (f) {
+              return f.text().then(function (t) {
+                return [
+                  f.name.replace(/\.svg$/i, ''),
+                  // Same normalisation the app does: keep the opacities that
+                  // make a second tone, drop the baked-in colour so the theme
+                  // can drive it.
+                  t.replace(/(fill|stroke)\s*=\s*"#[0-9a-fA-F]{3,8}"/g, '$1="currentColor"'),
+                ];
+              });
+            })
+          ).then(function (pairs) {
+            var lib = {};
+            pairs.forEach(function (p) {
+              lib[p[0]] = p[1];
+            });
+            PRO[activeStyle] = lib;
+            proInput.value = '';
+            applyStyle();
+            show(Object.keys(lib).length.toLocaleString() + ' ' + activeStyle + ' icons loaded');
+          });
+        });
+
         var toastTimer;
         grid.addEventListener('click', function (e) {
           var tile = e.target.closest('.tile');
           if (!tile) return;
-          var snippet = 'HugeIcons.' + tile.dataset.sym;
+          var snippet =
+            activeStyle === 'stroke'
+              ? 'HugeIcons.' + tile.dataset.sym
+              : activeStyle === 'solid'
+              ? 'HugeIconsSolid.' + tile.dataset.sym
+              : "HugeIconSvg('" +
+                tile.dataset.keb +
+                "', style: HugeIconStyle." +
+                activeStyle +
+                ')';
 
           navigator.clipboard.writeText(snippet).then(
             function () {
