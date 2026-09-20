@@ -24,12 +24,44 @@ body:
       required: true
 
   - type: dropdown
+    id: style
+    attributes:
+      label: Which style?
+      description: >
+        Only Stroke can be added to this gallery. The rest need a Pro licence and
+        ship straight into the app instead — see below for where each one goes.
+      options:
+        - Stroke — free, belongs in this gallery
+        - Solid — Pro, font, goes in the app
+        - Twotone — Pro, SVG only, goes in the app
+        - Duotone — Pro, SVG only, goes in the app
+        - Bulk — Pro, SVG only, goes in the app
+        - Not sure
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        **Where each style actually ends up**
+
+        | Style | Format | Destination |
+        |---|---|---|
+        | Stroke | font glyph | this repo — free, MIT |
+        | Solid | font glyph | the app — Pro, not redistributable |
+        | Twotone / Duotone / Bulk | SVG | the app, `assets/icons/hugeicons/<style>/` |
+
+        Twotone, duotone and bulk cannot be font glyphs: a glyph is one silhouette
+        in one colour, and these need two tones. They render through
+        `HugeIconSvg(...)`, which uses `SvgTheme(currentColor:)` so the tones
+        survive theming.
+
+  - type: dropdown
     id: source
     attributes:
       label: Where is it from?
       options:
-        - Hugeicons Stroke Rounded — I have a link
-        - A Hugeicons Pro style (solid, bulk, duotone, twotone)
+        - Hugeicons — I have a link
         - Custom artwork, not from Hugeicons
         - Not sure
     validations:
