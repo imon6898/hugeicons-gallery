@@ -671,6 +671,32 @@ IconButton(
 );</pre>
                 </div>
               </li>
+              <li>
+                <strong>The other four styles work differently.</strong> Stroke and
+                solid are single-colour, so they can be font glyphs. Twotone, duotone
+                and bulk need two tones — and a glyph is one silhouette in one colour,
+                so those stay SVG and render through a small wrapper:
+                <div class="snip">
+                  <button type="button">copy</button>
+                  <pre>HugeIconSvg('moon-02', style: HugeIconStyle.duotone,
+            size: R.sp(22), color: CustomColors.black())
+
+// the wrapper, in full:
+SvgPicture.asset(
+  'assets/icons/hugeicons/duotone/moon-02.svg',
+  theme: SvgTheme(currentColor: color),   // NOT colorFilter
+);</pre>
+                </div>
+                Tint with <code>SvgTheme(currentColor:)</code>, never
+                <code>ColorFilter.mode(c, srcIn)</code> — that repaints every path one
+                colour and flattens the second tone away. Hugeicons also ships
+                <code>stroke="#141B34"</code> rather than <code>currentColor</code>, so
+                run the SVGs through
+                <a href="tools/svg_currentcolor.py">svg_currentcolor.py</a> once.
+                <br />
+                Note these four are <strong>Pro</strong>: they belong in your app, not
+                in this repo. Only stroke is free.
+              </li>
             </ol>
 
             <p class="warn">
