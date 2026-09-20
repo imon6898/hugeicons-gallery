@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hugeicons — stroke rounded</title>
+    <meta
+      name="description"
+      content="Searchable gallery of the 6,228 free Hugeicons stroke-rounded glyphs, with the Dart symbol for each."
+    />
+    <meta property="og:title" content="Hugeicons — stroke rounded" />
+    <meta
+      property="og:description"
+      content="6,228 glyphs. Search by Hugeicons name or Dart symbol, click to copy."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>%F0%9F%94%A4</text></svg>"
+    />
+
+    <style>
+      @font-face {
+        font-family: 'Hugeicons';
+        src: url('hgi-stroke-rounded.ttf') format('truetype');
+        font-display: block;
+      }
+      @font-face {
+        font-family: 'InterLocal';
+        src: url('Inter-Regular.ttf') format('truetype');
+        font-weight: 400;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'InterLocal';
+        src: url('Inter-SemiBold.ttf') format('truetype');
+        font-weight: 600;
+        font-display: swap;
+      }
+
+      :root {
+        --accent: #0d968b;
+        --accent-deep: #006466;
+        --tint: #e7f5f3;
+        --ground: #f2f6f5;
+        --surface: #ffffff;
+        --surface-sunk: #e9efee;
+        --hairline: #dbe4e2;
+        --ink: #17201f;
+        --ink-muted: #667572;
+        --ink-faint: #93a29f;
+        --flag: #b4741a;
+        --flag-tint: #fbf0dd;
+        --shadow: 0 1px 2px rgb(23 32 31 / 0.05), 0 8px 24px -16px rgb(23 32 31 / 0.3);
+
+        --glyph: 26px;
+        --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+        --ui: 'InterLocal', system-ui, -apple-system, sans-serif;
+        color-scheme: light;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --accent: #2ab5a8;
+          --accent-deep: #7fd8ce;
+          --tint: #123734;
+          --ground: #141918;
+          --surface: #1c2322;
+          --surface-sunk: #101514;
+          --hairline: #2e3937;
+          --ink: #e8efed;
+          --ink-muted: #94a5a2;
+          --ink-faint: #6b7c79;
+          --flag: #e0a44e;
+          --flag-tint: #33260f;
+          --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -16px rgb(0 0 0 / 0.8);
+          color-scheme: dark;
+        }
+      }
+
+      :root[data-theme='dark'] {
+        --accent: #2ab5a8;
+        --accent-deep: #7fd8ce;
+        --tint: #123734;
+        --ground: #141918;
+        --surface: #1c2322;
+        --surface-sunk: #101514;
+        --hairline: #2e3937;
+        --ink: #e8efed;
+        --ink-muted: #94a5a2;
+        --ink-faint: #6b7c79;
+        --flag: #e0a44e;
+        --flag-tint: #33260f;
+        --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -16px rgb(0 0 0 / 0.8);
+        color-scheme: dark;
+      }
+
+      :root[data-theme='light'] {
+        --accent: #0d968b;
+        --accent-deep: #006466;
+        --tint: #e7f5f3;
+        --ground: #f2f6f5;
+        --surface: #ffffff;
+        --surface-sunk: #e9efee;
+        --hairline: #dbe4e2;
+        --ink: #17201f;
+        --ink-muted: #667572;
+        --ink-faint: #93a29f;
+        --flag: #b4741a;
+        --flag-tint: #fbf0dd;
+        --shadow: 0 1px 2px rgb(23 32 31 / 0.05), 0 8px 24px -16px rgb(23 32 31 / 0.3);
+        color-scheme: light;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--ground);
+        color: var(--ink);
+        font-family: var(--ui);
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: var(--accent);
+      }
+
+      .wrap {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 0 24px 56px;
+      }
+
+      /* Masthead */
+      .masthead {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px 32px;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 44px 0 26px;
+      }
+      .masthead h1 {
+        margin: 0 0 10px;
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        color: var(--accent-deep);
+        text-wrap: balance;
+      }
+      .masthead p {
+        margin: 0;
+        max-width: 62ch;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--ink-muted);
+      }
+      .rule {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 100%;
+        margin-top: 16px;
+        padding: 9px 14px;
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        border-radius: 8px;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--ink-muted);
+        white-space: nowrap;
+        overflow-x: auto;
+      }
+      .rule b {
+        font-weight: 400;
+        color: var(--accent);
+      }
+      .rule .sep {
+        color: var(--ink-faint);
+      }
+
+      .theme {
+        flex: none;
+        padding: 8px 12px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink-muted);
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .theme:hover {
+        color: var(--ink);
+        border-color: var(--accent);
+      }
+
+      /* Command bar */
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 0;
+        background: color-mix(in srgb, var(--ground) 88%, transparent);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--hairline);
+      }
+      .search {
+        position: relative;
+        flex: 1 1 260px;
+      }
+      .search input {
+        width: 100%;
+        padding: 11px 14px 11px 38px;
+        font-family: var(--mono);
+        font-size: 13.5px;
+        color: var(--ink);
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        border-radius: 9px;
+        outline: none;
+      }
+      .search input::placeholder {
+        color: var(--ink-faint);
+      }
+      .search input:focus-visible {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+      }
+      .search .mark {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: 'Hugeicons';
+        font-size: 16px;
+        color: var(--ink-faint);
+        pointer-events: none;
+      }
+      .search kbd {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 3px 7px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--ink-faint);
+        background: var(--surface-sunk);
+        border-radius: 5px;
+      }
+
+      .sizes {
+        display: flex;
+        gap: 2px;
+        padding: 3px;
+        background: var(--surface-sunk);
+        border-radius: 9px;
+      }
+      .sizes button {
+        padding: 7px 11px;
+        font-family: var(--mono);
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-muted);
+        background: none;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .sizes button:hover {
+        color: var(--ink);
+      }
+      .sizes button[aria-pressed='true'] {
+        color: var(--accent-deep);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+      .sizes button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+
+      .ask {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 14px;
+        font-family: var(--ui);
+        font-size: 13px;
+        font-weight: 600;
+        color: #fff;
+        background: var(--accent);
+        border-radius: 9px;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .ask:hover {
+        background: var(--accent-deep);
+      }
+      .ask .g {
+        font-family: 'Hugeicons';
+        font-weight: 400;
+        font-size: 15px;
+      }
+
+      .tally {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-muted);
+        white-space: nowrap;
+      }
+      .tally b {
+        font-weight: 400;
+        color: var(--ink);
+      }
+
+      /* Grid */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+        gap: 10px;
+        padding-top: 22px;
+      }
+      .tile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 18px 10px 13px;
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        border-radius: 11px;
+        cursor: pointer;
+        text-align: center;
+        content-visibility: auto;
+        contain-intrinsic-size: auto 118px;
+        transition: border-color 0.12s, background 0.12s;
+      }
+      .tile:hover {
+        border-color: var(--accent);
+        background: var(--tint);
+      }
+      .tile:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .tile.hit {
+        border-color: var(--accent);
+        background: var(--tint);
+      }
+      .tile .g {
+        font-family: 'Hugeicons';
+        font-size: var(--glyph);
+        line-height: 1;
+        color: var(--ink);
+        transition: font-size 0.12s;
+      }
+      .tile:hover .g,
+      .tile.hit .g {
+        color: var(--accent-deep);
+      }
+      .tile .sym {
+        font-family: var(--mono);
+        font-size: 11px;
+        line-height: 1.35;
+        color: var(--ink);
+        overflow-wrap: anywhere;
+      }
+      .tile .keb {
+        font-size: 10.5px;
+        line-height: 1.3;
+        color: var(--ink-faint);
+        overflow-wrap: anywhere;
+      }
+      .tile.flagged .sym::after {
+        content: '!';
+        display: inline-block;
+        margin-left: 5px;
+        padding: 0 5px;
+        font-size: 9.5px;
+        color: var(--flag);
+        background: var(--flag-tint);
+        border-radius: 4px;
+        vertical-align: 1px;
+      }
+      .tile[hidden] {
+        display: none;
+      }
+
+      .empty {
+        padding: 72px 20px;
+        text-align: center;
+      }
+      .empty p {
+        margin: 0 0 18px;
+        font-size: 15px;
+        color: var(--ink-muted);
+      }
+      .empty code {
+        font-family: var(--mono);
+        color: var(--ink);
+      }
+      .empty[hidden] {
+        display: none;
+      }
+
+      .legend {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+        max-width: 78ch;
+        margin-top: 28px;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--ink-muted);
+      }
+      .legend .chip {
+        flex: none;
+        padding: 1px 6px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--flag);
+        background: var(--flag-tint);
+        border-radius: 4px;
+      }
+      .legend code {
+        font-family: var(--mono);
+        color: var(--ink);
+      }
+
+      footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 18px;
+        margin-top: 30px;
+        padding-top: 22px;
+        border-top: 1px solid var(--hairline);
+        font-size: 12.5px;
+        color: var(--ink-faint);
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        transform: translate(-50%, 16px);
+        padding: 11px 16px;
+        background: var(--accent-deep);
+        color: #fff;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        font-family: var(--mono);
+        font-size: 13px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.16s, transform 0.16s;
+      }
+      .toast.up {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header class="masthead">
+        <div>
+          <h1>Hugeicons — stroke rounded</h1>
+          <p>
+            All 6,228 glyphs in the free Hugeicons stroke-rounded set, rendered from the same
+            <code>.ttf</code> the app bundles. Click any icon to copy its Dart symbol. Search matches
+            both the Hugeicons name and the Dart name, so it works whether you're reading code or a
+            Figma layer.
+          </p>
+          <div class="rule">
+            <span>arrow-shrink-02</span>
+            <span class="sep">&rarr;</span>
+            <b>HugeIcons.arrowShrink02</b>
+          </div>
+        </div>
+        <button class="theme" type="button" id="theme">theme</button>
+      </header>
+
+      <div class="bar">
+        <div class="search">
+          <span class="mark">&#xf2546;</span>
+          <input
+            id="q"
+            type="search"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="wallet, call-ringing, arrow&hellip;"
+            aria-label="Search icons"
+          />
+          <kbd>/</kbd>
+        </div>
+        <div class="sizes" role="group" aria-label="Preview size">
+          <button type="button" data-size="16">16</button>
+          <button type="button" data-size="20">20</button>
+          <button type="button" data-size="26" aria-pressed="true">26</button>
+          <button type="button" data-size="36">36</button>
+        </div>
+        <a class="ask" id="ask" href="#"><span class="g">&#xf150c;</span> Request an icon</a>
+        <div class="tally" id="tally"></div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div class="empty" hidden id="empty">
+        <p>Nothing matches <code id="echo"></code>.</p>
+        <a class="ask" id="askEmpty" href="#"
+          ><span class="g">&#xf150c;</span> Request <span id="askName"></span></a
+        >
+      </div>
+
+      <p class="legend">
+        <span class="chip">!</span>
+        <span
+          >17 names can't survive the kebab &rarr; camelCase transform cleanly — 16 collide with
+          another icon and take an <code>Alt</code> suffix, and <code>24-hours-clock</code> can't
+          start with a digit. Both names show on every tile, so trust the mono one.</span
+        >
+      </p>
+
+      <footer>
+        <span
+          >Icons &copy; Hugeicons, MIT —
+          <a href="MIT-Hugeicons.txt">notice</a></span
+        >
+        <span>Free tier is stroke rounded only; solid and duotone are Pro</span>
+        <span><a href="https://github.com/imon6898/hugeicons-gallery">Source</a></span>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="icons.js"></script>
+    <script>
+      (function () {
+        var REPO = 'https://github.com/imon6898/hugeicons-gallery';
+
+        var grid = document.getElementById('grid');
+        var q = document.getElementById('q');
+        var tally = document.getElementById('tally');
+        var empty = document.getElementById('empty');
+        var echo = document.getElementById('echo');
+        var toast = document.getElementById('toast');
+        var ask = document.getElementById('ask');
+        var askEmpty = document.getElementById('askEmpty');
+        var askName = document.getElementById('askName');
+
+        // Issue-form fields prefill from query params keyed by their `id` in the YAML.
+        function requestUrl(name) {
+          var n = (name || '').trim();
+          return (
+            REPO +
+            '/issues/new?template=icon-request.yml&labels=icon-request&title=' +
+            encodeURIComponent('Icon request: ' + n) +
+            (n ? '&icon-name=' + encodeURIComponent(n) : '')
+          );
+        }
+        ask.href = requestUrl('');
+
+        function camel(kebab) {
+          var p = kebab.split('-');
+          for (var i = 1; i < p.length; i++) p[i] = p[i].charAt(0).toUpperCase() + p[i].slice(1);
+          return p.join('');
+        }
+
+        var rows = [];
+        var frag = document.createDocumentFragment();
+
+        for (var i = 0; i < ICONS.length; i++) {
+          var sym = ICONS[i][0];
+          var keb = ICONS[i][1];
+          var cp = ICONS[i][2];
+
+          var el = document.createElement('button');
+          el.type = 'button';
+          el.className = 'tile' + (sym !== camel(keb) ? ' flagged' : '');
+          el.title = 'U+' + cp.toUpperCase();
+
+          var g = document.createElement('span');
+          g.className = 'g';
+          g.textContent = String.fromCodePoint(parseInt(cp, 16));
+          el.appendChild(g);
+
+          var s = document.createElement('span');
+          s.className = 'sym';
+          s.textContent = sym;
+          el.appendChild(s);
+
+          var k = document.createElement('span');
+          k.className = 'keb';
+          k.textContent = keb;
+          el.appendChild(k);
+
+          el.dataset.sym = sym;
+          frag.appendChild(el);
+          rows.push({ el: el, hay: (sym + ' ' + keb).toLowerCase() });
+        }
+        grid.appendChild(frag);
+
+        function count(n) {
+          var total = ICONS.length.toLocaleString();
+          tally.innerHTML =
+            n === ICONS.length
+              ? '<b>' + total + '</b> glyphs'
+              : '<b>' + n.toLocaleString() + '</b> of ' + total;
+        }
+        count(ICONS.length);
+
+        var timer;
+        q.addEventListener('input', function () {
+          clearTimeout(timer);
+          timer = setTimeout(filter, 70);
+        });
+
+        function filter() {
+          // Normalise so "call-ringing", "call ringing" and "callRinging" all match.
+          var raw = q.value;
+          var term = raw.toLowerCase().replace(/[-_\s]/g, '');
+          var n = 0;
+          for (var i = 0; i < rows.length; i++) {
+            var hit = !term || rows[i].hay.replace(/[-\s]/g, '').indexOf(term) !== -1;
+            rows[i].el.hidden = !hit;
+            if (hit) n++;
+          }
+          count(n);
+          echo.textContent = raw;
+          askName.textContent = raw;
+          askEmpty.href = requestUrl(raw);
+          empty.hidden = n !== 0;
+        }
+
+        var toastTimer;
+        grid.addEventListener('click', function (e) {
+          var tile = e.target.closest('.tile');
+          if (!tile) return;
+          var snippet = 'HugeIcons.' + tile.dataset.sym;
+
+          navigator.clipboard.writeText(snippet).then(
+            function () {
+              show(snippet + '  copied');
+            },
+            function () {
+              show(snippet);
+            }
+          );
+
+          document.querySelectorAll('.tile.hit').forEach(function (t) {
+            t.classList.remove('hit');
+          });
+          tile.classList.add('hit');
+        });
+
+        function show(msg) {
+          toast.textContent = msg;
+          toast.classList.add('up');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () {
+            toast.classList.remove('up');
+          }, 1800);
+        }
+
+        document.querySelectorAll('.sizes button').forEach(function (b) {
+          b.addEventListener('click', function () {
+            document.querySelectorAll('.sizes button').forEach(function (o) {
+              o.removeAttribute('aria-pressed');
+            });
+            b.setAttribute('aria-pressed', 'true');
+            document.documentElement.style.setProperty('--glyph', b.dataset.size + 'px');
+          });
+        });
+
+        var root = document.documentElement;
+        try {
+          var saved = localStorage.getItem('hgi-theme');
+          if (saved) root.dataset.theme = saved;
+        } catch (e) {}
+        document.getElementById('theme').addEventListener('click', function () {
+          var dark = root.dataset.theme
+            ? root.dataset.theme === 'dark'
+            : matchMedia('(prefers-color-scheme: dark)').matches;
+          root.dataset.theme = dark ? 'light' : 'dark';
+          try {
+            localStorage.setItem('hgi-theme', root.dataset.theme);
+          } catch (e) {}
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === '/' && document.activeElement !== q) {
+            e.preventDefault();
+            q.focus();
+          } else if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+            q.focus();
+            q.select();
+          } else if (e.key === 'Escape' && document.activeElement === q) {
+            q.value = '';
+            filter();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
