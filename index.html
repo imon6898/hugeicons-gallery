@@ -320,6 +320,46 @@
         color: var(--ink);
       }
 
+      /* Category chips */
+      .cats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 16px 0 2px;
+      }
+      .cats button {
+        padding: 6px 11px;
+        font-family: var(--ui);
+        font-size: 12.5px;
+        color: var(--ink-muted);
+        background: var(--surface);
+        border: 1px solid var(--hairline);
+        border-radius: 999px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .cats button:hover {
+        color: var(--ink);
+        border-color: var(--accent);
+      }
+      .cats button[aria-pressed='true'] {
+        color: #fff;
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .cats button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .cats button i {
+        font-style: normal;
+        font-family: var(--mono);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+        opacity: 0.55;
+        margin-left: 5px;
+      }
+
       /* Grid */
       .grid {
         display: grid;
@@ -518,6 +558,8 @@
         <div class="tally" id="tally"></div>
       </div>
 
+      <div class="cats" id="cats" role="group" aria-label="Filter by category"></div>
+
       <div class="grid" id="grid"></div>
 
       <div class="empty" hidden id="empty">
@@ -611,9 +653,48 @@
 
           el.dataset.sym = sym;
           frag.appendChild(el);
-          rows.push({ el: el, hay: (sym + ' ' + keb).toLowerCase() });
+          rows.push({ el: el, hay: (sym + ' ' + keb).toLowerCase(), cat: ICONS[i][3] });
         }
         grid.appendChild(frag);
+
+        // Category chips, biggest first — the font ships no category data, so
+        // these come from keyword rules in tools/categorize.py.
+        var cats = document.getElementById('cats');
+        var activeCat = '';
+        var tally_ = {};
+        rows.forEach(function (r) {
+          tally_[r.cat] = (tally_[r.cat] || 0) + 1;
+        });
+        var order = Object.keys(tally_).sort(function (a, b) {
+          if (a === 'Other') return 1;
+          if (b === 'Other') return -1;
+          return tally_[b] - tally_[a];
+        });
+        [['', 'All', ICONS.length]]
+          .concat(
+            order.map(function (c) {
+              return [c, c, tally_[c]];
+            })
+          )
+          .forEach(function (c, i) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.dataset.cat = c[0];
+            b.innerHTML = c[1] + '<i>' + c[2].toLocaleString() + '</i>';
+            if (i === 0) b.setAttribute('aria-pressed', 'true');
+            cats.appendChild(b);
+          });
+
+        cats.addEventListener('click', function (e) {
+          var b = e.target.closest('button');
+          if (!b) return;
+          cats.querySelectorAll('button').forEach(function (o) {
+            o.removeAttribute('aria-pressed');
+          });
+          b.setAttribute('aria-pressed', 'true');
+          activeCat = b.dataset.cat;
+          filter();
+        });
 
         function count(n) {
           var total = ICONS.length.toLocaleString();
@@ -636,7 +717,9 @@
           var term = raw.toLowerCase().replace(/[-_\s]/g, '');
           var n = 0;
           for (var i = 0; i < rows.length; i++) {
-            var hit = !term || rows[i].hay.replace(/[-\s]/g, '').indexOf(term) !== -1;
+            var hit =
+              (!activeCat || rows[i].cat === activeCat) &&
+              (!term || rows[i].hay.replace(/[-\s]/g, '').indexOf(term) !== -1);
             rows[i].el.hidden = !hit;
             if (hit) n++;
           }
