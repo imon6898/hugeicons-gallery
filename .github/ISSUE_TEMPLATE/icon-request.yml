@@ -1,0 +1,70 @@
+name: Icon request
+description: An icon you need isn't in the gallery
+title: 'Icon request: '
+labels: ['icon-request']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing — two things that catch most requests:
+
+        - **The name may differ.** The free set is Stroke Rounded only, and names don't always
+          carry a `-01` suffix (`call-done` exists, `call-done-01` doesn't). Search the
+          [gallery](https://imon6898.github.io/hugeicons-gallery/) by partial word first.
+        - **Solid, Bulk, Duotone and Twotone are Pro styles.** They aren't in the bundled font and
+          can't be added from the free tier.
+
+  - type: input
+    id: icon-name
+    attributes:
+      label: Icon name
+      description: Kebab-case, the way Hugeicons writes it.
+      placeholder: fingerprint-scan
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Where is it from?
+      options:
+        - Hugeicons Stroke Rounded — I have a link
+        - A Hugeicons Pro style (solid, bulk, duotone, twotone)
+        - Custom artwork, not from Hugeicons
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: hugeicons.com page, or the Figma frame it appears in.
+      placeholder: https://hugeicons.com/icon/fingerprint-scan
+
+  - type: textarea
+    id: usage
+    attributes:
+      label: What needs it?
+      description: Which screen or feature, and what the icon has to communicate there.
+      placeholder: Biometric unlock row on the security settings screen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: svg
+    attributes:
+      label: SVG source
+      description: >
+        For custom artwork only. Paste the SVG, or drop the file into `custom-icons/`
+        in a PR. Single colour, 24×24, 1.5pt stroke, no fills — anything else won't match
+        the rest of the set once it's merged into the font.
+      render: xml
+
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Checked
+      options:
+        - label: I searched the gallery and this icon isn't under another name.
+          required: true
