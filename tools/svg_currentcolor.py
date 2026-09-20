@@ -21,16 +21,42 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-HEX = re.compile(r'(fill|stroke)\s*=\s*"(#[0-9a-fA-F]{3,8})"')
+COLOR = re.compile(r'\b(fill|stroke)\s*=\s*"([^"]*)"')
 OPACITY = re.compile(r'(fill|stroke)-opacity\s*=\s*"([0-9.]+)"')
 
+# Figma writes `fill="black"` as readily as `fill="#141B34"`. Matching only hex
+# left those untouched, so the icon stayed black and vanished on a dark theme.
+NAMED = {
+    'black': '#000000', 'white': '#ffffff', 'red': '#ff0000', 'lime': '#00ff00',
+    'blue': '#0000ff', 'yellow': '#ffff00', 'cyan': '#00ffff', 'aqua': '#00ffff',
+    'magenta': '#ff00ff', 'fuchsia': '#ff00ff', 'silver': '#c0c0c0',
+    'gray': '#808080', 'grey': '#808080', 'maroon': '#800000',
+    'olive': '#808000', 'green': '#008000', 'purple': '#800080',
+    'teal': '#008080', 'navy': '#000080', 'orange': '#ffa500',
+}
+SKIP = {'none', 'currentcolor', 'transparent', 'inherit', ''}
 
-def norm(hexcode: str) -> str:
-    """#abc -> #aabbcc, drop alpha, lowercase — so shades compare honestly."""
-    h = hexcode.lstrip('#').lower()
-    if len(h) in (3, 4):
-        h = ''.join(c * 2 for c in h[:3])
-    return '#' + h[:6]
+
+def norm(value: str):
+    """Canonical #rrggbb, or None when the value paints nothing."""
+    v = value.strip().lower()
+    if v in SKIP:
+        return None
+    if v in NAMED:
+        return NAMED[v]
+    if v.startswith('#'):
+        h = v[1:]
+        if len(h) in (3, 4):
+            h = ''.join(c * 2 for c in h[:3])
+        return '#' + h[:6]
+    m = re.match(r'rgba?\(([^)]*)\)', v)
+    if m:
+        parts = [p.strip() for p in m.group(1).replace('/', ',').split(',')][:3]
+        try:
+            return '#' + ''.join(f'{int(float(x)):02x}' for x in parts)
+        except ValueError:
+            pass
+    return v
 
 
 def main() -> int:
@@ -47,7 +73,7 @@ def main() -> int:
 
     for f in files:
         src = f.read_text(encoding='utf-8')
-        hues = {norm(m.group(2)) for m in HEX.finditer(src) if m.group(2).lower() != 'none'}
+        hues = {h for h in (norm(m.group(2)) for m in COLOR.finditer(src)) if h}
 
         # Two distinct hues means real colour, not two opacities of one colour.
         if len(hues) > 1:
@@ -55,7 +81,9 @@ def main() -> int:
             skipped += 1
             continue
 
-        out = HEX.sub(lambda m: f'{m.group(1)}="currentColor"', src)
+        out = COLOR.sub(
+            lambda m: f'{m.group(1)}="currentColor"' if norm(m.group(2))
+            else m.group(0), src)
         if out == src:
             skipped += 1
             continue

@@ -1125,8 +1125,18 @@ SvgPicture.asset(
                   f.name.replace(/\.svg$/i, ''),
                   // Same normalisation the app does: keep the opacities that
                   // make a second tone, drop the baked-in colour so the theme
-                  // can drive it.
-                  t.replace(/(fill|stroke)\s*=\s*"#[0-9a-fA-F]{3,8}"/g, '$1="currentColor"'),
+                  // can drive it. Matching only hex missed Figma's fill="black",
+                  // which then stayed black and vanished on a dark theme.
+                  t.replace(/\b(fill|stroke)\s*=\s*"([^"]*)"/g, function (whole, attr, val) {
+                    var v = val.trim().toLowerCase();
+                    return v === '' ||
+                      v === 'none' ||
+                      v === 'currentcolor' ||
+                      v === 'transparent' ||
+                      v === 'inherit'
+                      ? whole
+                      : attr + '="currentColor"';
+                  }),
                 ];
               });
             })
