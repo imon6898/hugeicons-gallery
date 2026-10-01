@@ -1,7 +1,6 @@
 # Custom icons
 
-SVGs that aren't in the free Hugeicons set. Drop one here in a PR, or attach it to an
-[icon request](../../../issues/new?template=icon-request.yml).
+SVGs that aren't in the free Hugeicons set. Drop one here in a PR.
 
 Adding a file here does **not** put the glyph in the font — the `.ttf` has to be rebuilt before
 `HugeIcons.yourIcon` exists. That's a deliberate step, not an oversight: every rebuild changes the

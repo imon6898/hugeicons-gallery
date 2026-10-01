@@ -694,7 +694,7 @@
         text-align: center;
       }
       .empty p {
-        margin: 0 0 18px;
+        margin: 0;
         font-size: 15px;
         color: var(--ink-muted);
       }
@@ -888,7 +888,6 @@ SvgPicture.asset(
         <button class="ask folder" type="button" id="folder">
           <span class="g">&#xf1d01;</span> <span id="folderName">Choose folder</span>
         </button>
-        <a class="ask" id="ask" href="#"><span class="g">&#xf150c;</span> Request an icon</a>
         <div class="tally" id="tally" hidden></div>
       </div>
 
@@ -940,9 +939,6 @@ SvgPicture.asset(
 
       <div class="empty" hidden id="empty">
         <p>Nothing matches <code id="echo"></code>.</p>
-        <a class="ask" id="askEmpty" href="#"
-          ><span class="g">&#xf150c;</span> Request <span id="askName"></span></a
-        >
       </div>
 
       <p class="legend">
@@ -971,7 +967,6 @@ SvgPicture.asset(
     <script src="categories.js"></script>
     <script>
       (function () {
-        var REPO = 'https://github.com/imon6898/hugeicons-gallery';
         var STYLES = ['stroke', 'solid', 'twotone', 'duotone', 'bulk'];
 
         var grid = document.getElementById('grid');
@@ -980,9 +975,6 @@ SvgPicture.asset(
         var empty = document.getElementById('empty');
         var echo = document.getElementById('echo');
         var toast = document.getElementById('toast');
-        var ask = document.getElementById('ask');
-        var askEmpty = document.getElementById('askEmpty');
-        var askName = document.getElementById('askName');
         var cats = document.getElementById('cats');
         var styleBar = document.getElementById('styles');
         var loadpro = document.getElementById('loadpro');
@@ -995,18 +987,6 @@ SvgPicture.asset(
         var folderBtn = document.getElementById('folder');
         var folderName = document.getElementById('folderName');
         var intro = loadText.innerHTML;
-
-        // Issue-form fields prefill from query params keyed by their `id` in the YAML.
-        function requestUrl(name) {
-          var n = (name || '').trim();
-          return (
-            REPO +
-            '/issues/new?template=icon-request.yml&labels=icon-request&title=' +
-            encodeURIComponent('Icon request: ' + n) +
-            (n ? '&icon-name=' + encodeURIComponent(n) : '')
-          );
-        }
-        ask.href = requestUrl('');
 
         function camel(kebab) {
           var p = kebab.split('-');
@@ -1614,8 +1594,6 @@ SvgPicture.asset(
           }
           count(n);
           echo.textContent = raw;
-          askName.textContent = raw;
-          askEmpty.href = requestUrl(raw);
           empty.hidden = n !== 0;
         }
 

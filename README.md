@@ -110,10 +110,6 @@ names the way the gallery does, so whatever you copied from a tile is found.
 
 ## Missing an icon?
 
-[**Open an icon request →**](https://github.com/imon6898/hugeicons-gallery/issues/new?template=icon-request.yml)
-
-The gallery's empty state links straight to that form with the name you searched already filled in.
-
 Custom artwork goes in [`custom-icons/`](custom-icons/) — see the notes there for the constraints
 it has to meet before it can be merged into the font.
 
