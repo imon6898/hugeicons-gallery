@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hugeicons — your folder</title>
+    <title>Hugeicons gallery</title>
     <meta
       name="description"
-      content="Browse your own Hugeicons download — stroke, solid, twotone, duotone and bulk — read straight from your disk, with the Dart code for each icon."
+      content="Search the free Hugeicons stroke set, or all five styles of your own download, and copy any icon for Figma, HTML, React, Vue, Laravel, Flutter or React Native."
     />
-    <meta property="og:title" content="Hugeicons — your folder" />
+    <meta property="og:title" content="Hugeicons gallery" />
     <meta
       property="og:description"
-      content="Pick your Hugeicons folder once, then search every style and click to copy."
+      content="Search Hugeicons and click to copy — for Figma, the web, Flutter or React Native."
     />
     <link
       rel="icon"
@@ -231,6 +231,17 @@
       .install a {
         color: var(--accent);
       }
+      .install code,
+      .install kbd {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--ink);
+      }
+      .install kbd {
+        padding: 1px 6px;
+        background: var(--surface-sunk);
+        border-radius: 4px;
+      }
       .snip {
         position: relative;
         margin: 8px 0 0;
@@ -383,6 +394,38 @@
         box-shadow: var(--shadow);
       }
       .sizes button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+
+      /* Who the click is for */
+      .who {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 3px 3px 3px 12px;
+        font-size: 12px;
+        color: var(--ink-muted);
+        background: var(--surface-sunk);
+        border-radius: 9px;
+        white-space: nowrap;
+      }
+      .who[hidden] {
+        display: none;
+      }
+      .who select {
+        padding: 7px 8px;
+        font-family: var(--ui);
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--accent-deep);
+        background: var(--surface);
+        border: 0;
+        border-radius: 6px;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+      }
+      .who select:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 1px;
       }
@@ -753,6 +796,9 @@
         display: none;
       }
 
+      .legend[hidden] {
+        display: none;
+      }
       .legend {
         display: flex;
         gap: 8px;
@@ -835,21 +881,22 @@
     <div class="wrap">
       <header class="masthead">
         <div>
-          <h1>Hugeicons — your folder</h1>
+          <h1>Hugeicons gallery</h1>
           <p>
-            Point this page at your Hugeicons download and every style in it — stroke, solid,
-            twotone, duotone and bulk — shows up here with search and categories. Click any icon to
-            copy the code for it. Search matches both the Hugeicons name and the Dart name, so it
-            works whether you're reading code or a Figma layer.
+            The free Hugeicons stroke set, with search and categories — and, when you point the
+            page at your own download, solid, twotone, duotone and bulk as well. Click any icon to
+            copy it the way you work: straight into Figma, as HTML, React, Vue, Laravel, Flutter or
+            React Native code, or as a file. Search matches the icon's name and its code name.
           </p>
           <div class="rule">
             <span>arrow-shrink-02</span>
             <span class="sep">&rarr;</span>
-            <b>HugeIcons.arrowShrink02</b>
+            <b id="ruleOut">HugeIcons.arrowShrink02</b>
           </div>
 
-          <details class="install">
-            <summary>Install in a Flutter app</summary>
+          <details class="install" id="how">
+            <summary id="howTitle">How to use it — Flutter</summary>
+            <div data-for="flutter">
             <ol>
               <li>
                 <strong>Take the two files.</strong>
@@ -921,6 +968,207 @@ SvgPicture.asset(
               them all defeats <code>--tree-shake-icons</code>, which otherwise cuts the
               3&nbsp;MB font to about 1.4&nbsp;KB.
             </p>
+            </div>
+
+            <div data-for="figma" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> Its SVG is copied, exactly as Hugeicons drew
+                  it.
+                </li>
+                <li>
+                  <strong>Paste it in Figma.</strong> Click the canvas and press
+                  <kbd>⌘V</kbd> (<kbd>Ctrl+V</kbd> on Windows). It lands as an editable
+                  24&times;24 vector, not a picture.
+                </li>
+                <li>
+                  <strong>Make it yours.</strong> Change the colour under Stroke or Fill. Resize
+                  it with the Scale tool (<kbd>K</kbd>), so the line weight scales with it. Press
+                  <kbd>⌥⌘K</kbd> to turn it into a component you can reuse across the file.
+                </li>
+              </ol>
+              <p class="warn">
+                <b>Need a whole set?</b> Switch to <em>SVG file</em>, click the icons you want,
+                and drag the downloaded files onto the canvas together.
+              </p>
+            </div>
+
+            <div data-for="file" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> <code>call-ringing-01.svg</code> downloads — the
+                  original file, untouched.
+                </li>
+                <li>
+                  <strong>Drop it where you work.</strong> Figma, Sketch and Illustrator take it
+                  by drag and drop. In Android Studio use
+                  <em>New &rarr; Vector Asset &rarr; Local file</em>; in Xcode drag it into
+                  <code>Assets.xcassets</code>.
+                </li>
+              </ol>
+            </div>
+
+            <div data-for="html" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> You get its <code>&lt;svg&gt;</code>, with the
+                  colour set to <code>currentColor</code>.
+                </li>
+                <li>
+                  <strong>Paste it where the icon goes</strong> — plain HTML, a PHP, Twig or EJS
+                  template, an Angular or Svelte component:
+                  <div class="snip">
+                    <pre>&lt;button class="call"&gt;
+  &lt;svg width="24" height="24" viewBox="0 0 24 24" fill="none"&gt; … &lt;/svg&gt;
+  Call
+&lt;/button&gt;</pre>
+                  </div>
+                </li>
+                <li>
+                  <strong>Colour and size it in CSS.</strong> The icon takes the text colour
+                  around it:
+                  <div class="snip">
+                    <button type="button">copy</button>
+                    <pre>.call { color: teal; }
+.call svg { width: 20px; height: 20px; }</pre>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div data-for="react react-ts" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> You get a component — save it as
+                  <code>CallRinging01Icon.jsx</code>, or <code>.tsx</code> from the TypeScript
+                  choice. There is nothing to install.
+                </li>
+                <li>
+                  <strong>Use it like any component.</strong> Every prop lands on the
+                  <code>&lt;svg&gt;</code>:
+                  <div class="snip">
+                    <button type="button">copy</button>
+                    <pre>import { CallRinging01Icon } from './icons/CallRinging01Icon';
+
+&lt;CallRinging01Icon width={20} height={20} className="text-teal-600" /&gt;</pre>
+                  </div>
+                </li>
+                <li>
+                  <strong>Colour comes from CSS.</strong> The artwork uses
+                  <code>currentColor</code>, so <code>color</code> — or a Tailwind
+                  <code>text-…</code> class — paints it. It keeps no state, so in Next.js it
+                  works in server and client components alike.
+                </li>
+              </ol>
+            </div>
+
+            <div data-for="vue" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> You get a single-file component — save it as
+                  <code>CallRinging01Icon.vue</code>.
+                </li>
+                <li>
+                  <strong>Import and use it.</strong> <code>class</code>, <code>width</code> and
+                  the rest fall through to the <code>&lt;svg&gt;</code>:
+                  <div class="snip">
+                    <button type="button">copy</button>
+                    <pre>&lt;script setup&gt;
+import CallRinging01Icon from './icons/CallRinging01Icon.vue'
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;CallRinging01Icon class="icon" width="20" height="20" /&gt;
+&lt;/template&gt;</pre>
+                  </div>
+                </li>
+                <li>
+                  <strong>In Nuxt</strong> put the file in <code>components/</code> and skip the
+                  import. Colour follows CSS <code>color</code>.
+                </li>
+              </ol>
+            </div>
+
+            <div data-for="blade" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> You get a Blade component — save it as
+                  <code>resources/views/components/icon/call-ringing-01.blade.php</code>.
+                </li>
+                <li>
+                  <strong>Use it in any view.</strong> The attributes you pass are merged onto
+                  the <code>&lt;svg&gt;</code>:
+                  <div class="snip">
+                    <button type="button">copy</button>
+                    <pre>&lt;x-icon.call-ringing-01 class="w-5 h-5 text-teal-600" /&gt;</pre>
+                  </div>
+                </li>
+                <li>
+                  <strong>Plain PHP?</strong> Switch to <em>HTML / PHP</em> and paste the
+                  <code>&lt;svg&gt;</code> into the template instead.
+                </li>
+              </ol>
+            </div>
+
+            <div data-for="js" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> You get it as a string constant — keep them
+                  together in one <code>icons.js</code>.
+                </li>
+                <li>
+                  <strong>Put it in the page</strong> from a script, or send it from Node in the
+                  HTML you render:
+                  <div class="snip">
+                    <button type="button">copy</button>
+                    <pre>import { callRinging01Icon } from './icons.js';
+
+button.innerHTML = callRinging01Icon + ' Call';                  // in the browser
+res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Express</pre>
+                  </div>
+                </li>
+                <li>
+                  <strong>Using <code>require</code>?</strong> Change <code>export const</code>
+                  to <code>exports.callRinging01Icon =</code>. Colour follows CSS
+                  <code>color</code>.
+                </li>
+              </ol>
+            </div>
+
+            <div data-for="rn" hidden>
+              <ol>
+                <li>
+                  <strong>Install the SVG renderer</strong> once — without Expo it's
+                  <code>npm install react-native-svg</code>:
+                  <div class="snip">
+                    <button type="button">copy</button>
+                    <pre>npx expo install react-native-svg</pre>
+                  </div>
+                </li>
+                <li>
+                  <strong>Click an icon.</strong> You get a component — save it as
+                  <code>CallRinging01Icon.js</code>.
+                </li>
+                <li>
+                  <strong>Use it.</strong>
+                  <div class="snip">
+                    <button type="button">copy</button>
+                    <pre>import { CallRinging01Icon } from './icons/CallRinging01Icon';
+
+&lt;CallRinging01Icon size={22} color="teal" /&gt;</pre>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div data-for="name" hidden>
+              <ol>
+                <li>
+                  <strong>Click an icon.</strong> Its name is copied —
+                  <code>call-ringing-01</code> — for a search box, a layer name or a ticket.
+                </li>
+              </ol>
+            </div>
           </details>
         </div>
         <button class="theme" type="button" id="theme">theme</button>
@@ -945,6 +1193,30 @@ SvgPicture.asset(
           <button type="button" data-size="26" aria-pressed="true">26</button>
           <button type="button" data-size="36">36</button>
         </div>
+        <label class="who" id="whoBox" hidden>
+          Copy for
+          <select id="who">
+            <optgroup label="Design">
+              <option value="figma">Figma</option>
+              <option value="file">SVG file</option>
+            </optgroup>
+            <optgroup label="Web">
+              <option value="html">HTML / PHP</option>
+              <option value="react">React / Next.js</option>
+              <option value="react-ts">React / Next.js (TypeScript)</option>
+              <option value="vue">Vue / Nuxt</option>
+              <option value="blade">Laravel Blade</option>
+              <option value="js">JavaScript / Node.js</option>
+            </optgroup>
+            <optgroup label="Apps">
+              <option value="flutter" selected>Flutter</option>
+              <option value="rn">React Native</option>
+            </optgroup>
+            <optgroup label="Anything else">
+              <option value="name">Icon name</option>
+            </optgroup>
+          </select>
+        </label>
         <button class="ask folder" type="button" id="folder">
           <span class="g">&#xf1d01;</span> <span id="folderName">Choose folder</span>
         </button>
@@ -964,12 +1236,12 @@ SvgPicture.asset(
       <section class="loadpro" id="loadpro">
         <h2 id="loadTitle">Point this at your Hugeicons folder</h2>
         <p id="loadText">
-          Drag the folder that <em>holds</em> <code>Stroke</code>, <code>Solid</code>,
-          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> onto this page — the
-          folder they all sit in, not one of the five — and every tab fills at once. Or pick it
-          with the button. The icons aren't in this repo, since the Pro styles can't be
-          redistributed, so the page reads them straight from your disk — or, with a key, from
-          your own private online library, where no folder is needed.
+          Stroke is free, so it is here for everyone. Solid, Twotone, Duotone and Bulk are Pro
+          and can't be given away, so the page reads those from your own Hugeicons download:
+          drag the folder that <em>holds</em> the styles onto this page — the folder they all
+          sit in, not one of the five — or pick it with the button, and every tab fills at once.
+          With a key they come from your own private online library instead, and no folder is
+          needed.
         </p>
         <div class="acts">
           <button type="button" id="pick">Choose folder</button>
@@ -1022,13 +1294,13 @@ SvgPicture.asset(
         <p>Nothing matches <code id="echo"></code>.</p>
       </div>
 
-      <p class="legend">
+      <p class="legend" id="legend">
         <span class="chip">!</span>
         <span
-          >Marks a name that can't survive the kebab &rarr; camelCase transform cleanly — it
-          collides with another icon and takes an <code>Alt</code> suffix, or starts with a digit
-          and takes an <code>icon</code> prefix, like <code>24-hours-clock</code>. Both names show
-          on every tile, so trust the mono one.</span
+          >Marks a name that can't turn into a code name cleanly — it collides with another icon
+          and takes an <code>Alt</code> suffix, or starts with a digit and takes an
+          <code>icon</code> prefix, like <code>24-hours-clock</code>. Both names show on every
+          tile, so trust the mono one.</span
         >
       </p>
 
@@ -1378,6 +1650,33 @@ SvgPicture.asset(
           else b.removeAttribute('aria-pressed');
         });
 
+        // What the visitor brought themselves — every source but the free set.
+        function sources() {
+          var from = [];
+          STYLES.forEach(function (s) {
+            var name = SRC[s] && SRC[s].from;
+            if (name && name !== FREE_SET && from.indexOf(name) === -1) from.push(name);
+          });
+          return from;
+        }
+
+        // The folder button and the footer both say where the icons come from.
+        function credit() {
+          var from = sources();
+          folderName.textContent = waiting.length
+            ? 'Reopen ' + waiting[0].handle.name
+            : !from.length
+              ? 'Choose folder'
+              : from.length === 1
+                ? from[0]
+                : from.length + ' folders';
+          sourceNote.textContent = !from.length
+            ? 'The free Stroke set, from Hugeicons'
+            : from.indexOf(ONLINE) === -1
+              ? 'Read from your disk, never uploaded'
+              : 'Read from your private library' + (from.length > 1 ? ' and your disk' : '');
+        }
+
         // Each pick adds the styles it holds and leaves the rest alone, so the
         // five style folders can be picked one by one — or their parent once.
         function addFolder(name, found) {
@@ -1397,25 +1696,20 @@ SvgPicture.asset(
             delete reading[s];
           });
           renameAll();
+          credit();
 
-          var from = [];
-          STYLES.forEach(function (s) {
-            if (SRC[s] && from.indexOf(SRC[s].from) === -1) from.push(SRC[s].from);
-          });
-          folderName.textContent = from.length === 1 ? from[0] : from.length + ' folders';
-          sourceNote.textContent =
-            from.indexOf(ONLINE) === -1
-              ? 'Read from your disk, never uploaded'
-              : 'Read from your private library' + (from.length > 1 ? ' and your disk' : '');
-          // The dialog reopens inside the last folder picked, so picking Stroke
-          // twice is easy to do and looks like nothing happened. Say what's missing.
-          if (SRC[activeStyle]) show(name + ': ' + got.join(', '));
-          else {
-            show(
-              name + ' only has ' + got.join(', ') + ' icons — for ' + activeStyle +
-                ', drag in the folder that holds all five',
-              6000
-            );
+          // The free set arrives unasked, so it says nothing. For the rest: the
+          // dialog reopens inside the last folder picked, so picking Stroke twice
+          // is easy to do and looks like nothing happened. Say what's missing.
+          if (name !== FREE_SET) {
+            if (SRC[activeStyle]) show(name + ': ' + got.join(', '));
+            else {
+              show(
+                name + ' only has ' + got.join(', ') + ' icons — for ' + activeStyle +
+                  ', drag in the folder that holds all five',
+                6000
+              );
+            }
           }
           loadStyle(activeStyle);
         }
@@ -1505,7 +1799,9 @@ SvgPicture.asset(
                 ' ' +
                 style +
                 ' icons' +
-                (gaps
+                (src.from === FREE_SET
+                  ? ' · free for everyone — the other four styles are Pro'
+                  : gaps
                   ? ' · for every tab, drag in the folder that holds all five'
                   : (skipped ? ' · ' + skipped + ' non-icon files skipped' : '') +
                     (folded ? ' · ' + folded + ' duplicate names' : '')),
@@ -1522,10 +1818,16 @@ SvgPicture.asset(
           var r = byName[keb];
           if (r) return r;
           var sym = SYM[keb] || camel(keb);
+          // A component name from the Dart symbol, which is already unique and a
+          // legal identifier: callRinging01 -> CallRinging01Icon, and
+          // icon24HoursClock -> Icon24HoursClock. The constant is the same name
+          // with a small first letter, so it can never be a reserved word.
+          var comp = sym.charAt(0).toUpperCase() + sym.slice(1);
+          if (!/^Icon\d/.test(comp) && !/Icon$/.test(comp)) comp += 'Icon';
 
           var el = document.createElement('button');
           el.type = 'button';
-          el.className = 'tile' + (sym !== camel(keb) ? ' flagged' : '');
+          el.className = 'tile';
 
           var g = document.createElement('span');
           g.className = 'g pro';
@@ -1533,7 +1835,6 @@ SvgPicture.asset(
 
           var s = document.createElement('span');
           s.className = 'sym';
-          s.textContent = sym;
           el.appendChild(s);
 
           var k = document.createElement('span');
@@ -1543,7 +1844,23 @@ SvgPicture.asset(
 
           el.dataset.keb = keb;
           var hay = (sym + ' ' + keb).toLowerCase();
-          r = { el: el, g: g, keb: keb, sym: sym, flat: hay.replace(/[-\s]/g, ''), cat: categorize(keb) };
+          r = {
+            el: el,
+            g: g,
+            s: s,
+            k: k,
+            keb: keb,
+            sym: sym,
+            comp: comp,
+            con: comp.charAt(0).toLowerCase() + comp.slice(1),
+            flagged: sym !== camel(keb),
+            flat: hay.replace(/[-\s]/g, ''),
+            // Matched from its start only: every component ends in "Icon", and
+            // "con" must not find them all.
+            low: comp.toLowerCase(),
+            cat: categorize(keb),
+          };
+          dress(r);
           byName[keb] = r;
           rows.push(r);
           return r;
@@ -1605,20 +1922,18 @@ SvgPicture.asset(
               'Nothing came through from ' + SRC[activeStyle].from + '. Check your ' +
               'connection, or that the folder is still there, then click the ' + name +
               ' tab to try again.';
-          } else if (Object.keys(SRC).length) {
-            var from = [];
-            STYLES.forEach(function (s) {
-              if (SRC[s] && from.indexOf(SRC[s].from) === -1) from.push(SRC[s].from);
-            });
+          } else if (sources().length) {
             loadTitle.textContent = name + " isn't loaded yet";
             loadText.textContent =
               'This page only sees the folders you give it, and so far that is ' +
-              from.join(' and ') + '. Drag the folder that holds all five styles onto this ' +
-              'page to fill every tab, or drag just the ' + name + ' folder. Choose folder ' +
-              'works too — if its window opens inside one of the style folders, go up a ' +
-              'level first (⌘↑ on a Mac).';
+              sources().join(' and ') + '. Drag the folder that holds all five styles onto ' +
+              'this page to fill every tab, or drag just the ' + name + ' folder. Choose ' +
+              'folder works too — if its window opens inside one of the style folders, go up ' +
+              'a level first (⌘↑ on a Mac).';
           } else {
-            loadTitle.textContent = 'Point this at your Hugeicons folder';
+            // Nothing of the visitor's own yet: only the free Stroke set, if that.
+            loadTitle.textContent =
+              activeStyle === 'stroke' ? 'Point this at your Hugeicons folder' : name + ' is a Pro style';
             loadText.innerHTML = intro;
           }
         }
@@ -1717,7 +2032,7 @@ SvgPicture.asset(
             var hit =
               !!lib[r.keb] &&
               (!activeCat || r.cat === activeCat) &&
-              (!term || r.flat.indexOf(term) !== -1);
+              (!term || r.flat.indexOf(term) !== -1 || r.low.indexOf(term) === 0);
             r.el.hidden = !hit;
             if (hit) n++;
           }
@@ -1839,12 +2154,18 @@ SvgPicture.asset(
         }
 
         pick.addEventListener('click', chooseFolder);
-        folderBtn.addEventListener('click', chooseFolder);
+        // With the free set on show the panel — and its Reopen button — is out of
+        // sight, so the toolbar button reopens a remembered folder too.
+        folderBtn.addEventListener('click', function () {
+          if (waiting.length) reopen.click();
+          else chooseFolder();
+        });
 
         function showReopen() {
           reopenName.textContent = waiting.length
             ? waiting[0].handle.name + (waiting.length > 1 ? ' (+' + (waiting.length - 1) + ')' : '')
             : '';
+          credit();
           if (!LIB[activeStyle]) panel();
         }
 
@@ -2040,6 +2361,7 @@ SvgPicture.asset(
               // The library takes over from whatever folders were remembered.
               picks = [];
               waiting = [];
+              credit();
               try {
                 kv('readwrite', function (s) {
                   s.delete('folder');
@@ -2075,9 +2397,10 @@ SvgPicture.asset(
               applyStyle();
               show(libraryTrouble(err), 7000);
             });
+        var settled = returning;
         try {
           if (window.showDirectoryPicker && window.indexedDB) {
-            returning
+            settled = returning
               .then(function () {
                 return kv('readonly', function (s) {
                   return s.get('folders');
@@ -2098,51 +2421,362 @@ SvgPicture.asset(
                     return p.styles;
                   });
                 }
-                list.forEach(function (p) {
-                  if (!p.handle || !p.handle.queryPermission) return;
-                  p.handle.queryPermission({ mode: 'read' }).then(function (state) {
-                    if (state === 'granted') connect(p.handle, p.styles, !p.styles);
-                    else if (state === 'prompt') {
-                      waiting.push(p);
-                      showReopen();
-                    }
-                  });
-                });
+                return Promise.all(
+                  list.map(function (p) {
+                    if (!p.handle || !p.handle.queryPermission) return null;
+                    return p.handle.queryPermission({ mode: 'read' }).then(function (state) {
+                      if (state === 'granted') return connect(p.handle, p.styles, !p.styles);
+                      if (state === 'prompt') {
+                        waiting.push(p);
+                        showReopen();
+                      }
+                    });
+                  })
+                );
               })
               .catch(function () {});
           }
         } catch (e) {}
 
+        // --- The free set ------------------------------------------------------------
+        // Stroke Rounded is MIT, so that one style can sit on this page for anybody:
+        // free-stroke.json is tools/free_icons.py's build of Hugeicons' own npm
+        // package. It fills the Stroke tab once it's clear the visitor has brought no
+        // Stroke of their own, and steps aside the moment they do.
+        var FREE_SET = 'the free set';
+
+        function freeStroke() {
+          if (SRC.stroke) return;
+          fetch('free-stroke.json')
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.json();
+            })
+            .then(function (all) {
+              if (SRC.stroke) return;
+              var found = Object.create(null);
+              found.stroke = Object.keys(all).map(function (name) {
+                return {
+                  stem: name,
+                  read: function () {
+                    return Promise.resolve(all[name]);
+                  },
+                };
+              });
+              addFolder(FREE_SET, found);
+            })
+            .catch(function () {});
+        }
+        settled.then(freeStroke);
+
+        // --- Who is asking -----------------------------------------------------------
+        // One click hands a designer, a web developer and an app developer three
+        // different things. `names` is what a tile's mono line shows in that
+        // format: the Dart symbol, a component name, a constant — or '' for the
+        // icon's own name. `rule` is the example under the title.
+        var FOR = {
+          figma: { label: 'Figma', names: '', rule: 'paste in Figma' },
+          file: { label: 'SVG file', names: '', rule: 'arrow-shrink-02.svg' },
+          html: { label: 'HTML / PHP', names: '', rule: '<svg …>' },
+          react: { label: 'React / Next.js', names: 'comp', rule: '<ArrowShrink02Icon />' },
+          'react-ts': { label: 'React / Next.js', names: 'comp', rule: '<ArrowShrink02Icon />' },
+          vue: { label: 'Vue / Nuxt', names: 'comp', rule: '<ArrowShrink02Icon />' },
+          blade: { label: 'Laravel Blade', names: 'blade', rule: '<x-icon.arrow-shrink-02 />' },
+          js: { label: 'JavaScript / Node.js', names: 'const', rule: 'arrowShrink02Icon' },
+          flutter: { label: 'Flutter', names: 'sym', rule: 'HugeIcons.arrowShrink02' },
+          rn: { label: 'React Native', names: 'comp', rule: '<ArrowShrink02Icon size={24} />' },
+          name: { label: 'Icon name', names: '', rule: 'arrow-shrink-02' },
+        };
+        var format = 'flutter';
+
+        // The tile's mono line is the name you'd type in that format.
+        function dress(r) {
+          var names = FOR[format].names;
+          var text =
+            names === 'sym'
+              ? r.sym
+              : names === 'comp'
+                ? r.comp
+                : names === 'const'
+                  ? r.con
+                  : names === 'blade'
+                    ? 'x-icon.' + r.keb
+                    : r.keb;
+          r.s.textContent = text;
+          r.k.hidden = text === r.keb;
+          r.el.classList.toggle('flagged', r.flagged && !!names && names !== 'blade');
+        }
+
+        // tools/svg_currentcolor.py, in the browser: the ink becomes currentColor
+        // so CSS can paint it, white knockouts stay white, and artwork with two
+        // real hues is left exactly as drawn.
+        var NAMED = {
+          black: '#000000', white: '#ffffff', red: '#ff0000', lime: '#00ff00', blue: '#0000ff',
+          yellow: '#ffff00', cyan: '#00ffff', aqua: '#00ffff', magenta: '#ff00ff',
+          fuchsia: '#ff00ff', silver: '#c0c0c0', gray: '#808080', grey: '#808080',
+          maroon: '#800000', olive: '#808000', green: '#008000', purple: '#800080',
+          teal: '#008080', navy: '#000080', orange: '#ffa500',
+        };
+        var PAINT = /\b(fill|stroke)\s*=\s*"([^"]*)"/g;
+
+        function hue(value) {
+          var v = value.trim().toLowerCase();
+          if (!v || /^(none|currentcolor|transparent|inherit)$/.test(v)) return '';
+          if (v.indexOf('url(') === 0 || v.indexOf('var(') === 0) return '';
+          if (NAMED[v]) return NAMED[v];
+          if (v.charAt(0) === '#') {
+            var h = v.slice(1);
+            if (h.length === 3 || h.length === 4) h = h.slice(0, 3).replace(/./g, '$&$&');
+            return '#' + h.slice(0, 6);
+          }
+          var m = /^rgba?\(([^)]*)\)/.exec(v);
+          if (m) {
+            var parts = m[1].replace(/\//g, ',').split(',').slice(0, 3).map(function (x) {
+              return parseInt(parseFloat(x), 10);
+            });
+            if (parts.length === 3 && parts.every(function (n) { return n >= 0 && n < 256; })) {
+              return '#' + parts.map(function (n) {
+                return (n < 16 ? '0' : '') + n.toString(16);
+              }).join('');
+            }
+          }
+          return v;
+        }
+
+        function recolored(src) {
+          var seen = Object.create(null);
+          src.replace(PAINT, function (all, prop, value) {
+            var h = hue(value);
+            if (h) seen[h] = true;
+            return all;
+          });
+          var ink = Object.keys(seen).filter(function (h) {
+            return h !== '#ffffff';
+          });
+          if (!ink.length) ink = Object.keys(seen);
+          if (ink.length !== 1) return src;
+          return src.replace(PAINT, function (all, prop, value) {
+            return hue(value) === ink[0] ? prop + '="currentColor"' : all;
+          });
+        }
+
+        function parsed(text) {
+          var doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+          var svg = doc.documentElement;
+          return svg.localName === 'svg' && !doc.getElementsByTagName('parsererror').length
+            ? svg
+            : null;
+        }
+
+        // JSX spells attributes in camelCase: stroke-width -> strokeWidth.
+        function jsxAttrs(el, skip) {
+          return Array.prototype.map
+            .call(el.attributes, function (a) {
+              if (skip && skip.indexOf(a.name) !== -1) return '';
+              var name =
+                a.name === 'class'
+                  ? 'className'
+                  : /^(data|aria)-/.test(a.name)
+                    ? a.name
+                    : a.name.replace(/[-:]([a-z])/g, function (all, c) {
+                        return c.toUpperCase();
+                      });
+              return (
+                ' ' + name +
+                (/["{}\n]/.test(a.value) ? '={' + JSON.stringify(a.value) + '}' : '="' + a.value + '"')
+              );
+            })
+            .join('');
+        }
+
+        // react-native-svg's elements; anything it can't draw is left out.
+        var NATIVE = {
+          svg: 'Svg', path: 'Path', circle: 'Circle', rect: 'Rect', ellipse: 'Ellipse',
+          line: 'Line', polyline: 'Polyline', polygon: 'Polygon', g: 'G', defs: 'Defs',
+          clipPath: 'ClipPath', mask: 'Mask', linearGradient: 'LinearGradient',
+          radialGradient: 'RadialGradient', stop: 'Stop', use: 'Use',
+        };
+
+        // The artwork as JSX. `used`, when given, renames the elements for
+        // react-native-svg and collects them for the import line; `root` is the
+        // attribute text for this element in place of its own.
+        function jsx(el, pad, used, root) {
+          var name = used ? NATIVE[el.localName] : el.localName;
+          if (!name) return '';
+          if (used) used[name] = true;
+          var kids = Array.prototype.map
+            .call(el.children, function (c) {
+              return jsx(c, pad + '  ', used);
+            })
+            .join('');
+          return (
+            pad + '<' + name + (root || jsxAttrs(el)) +
+            (kids ? '>\n' + kids + pad + '</' + name + '>\n' : ' />\n')
+          );
+        }
+
+        function flutterCode(r) {
+          if (activeStyle === 'stroke') {
+            // The app's stroke icons come from the free font, which may not have it.
+            return FREE[r.keb]
+              ? { text: 'HugeIcons.' + FREE[r.keb], said: 'HugeIcons.' + FREE[r.keb] + '  copied' }
+              : { text: r.keb, said: r.keb + '  copied — not in the free stroke font' };
+          }
+          var code =
+            activeStyle === 'solid'
+              ? 'HugeIconsSolid.' + r.sym
+              : "HugeIconSvg('" + r.keb + "', style: HugeIconStyle." + activeStyle + ')';
+          return { text: code, said: code + '  copied' };
+        }
+
+        // What a click on a tile hands over: `text` for the clipboard and `said`
+        // for the toast — or `file`, a name to save the text under instead.
+        function handover(r) {
+          if (format === 'name') return { text: r.keb, said: r.keb + '  copied' };
+          if (format === 'flutter') return flutterCode(r);
+          var f = LIB[activeStyle] && LIB[activeStyle][r.keb];
+          var raw = f ? f.text.trim() : '';
+          if (!raw) return null;
+          if (format === 'figma') return { text: raw, said: r.keb + ' copied — paste it in Figma' };
+          if (format === 'file') return { text: raw, file: r.keb + '.svg', said: r.keb + '.svg downloaded' };
+
+          var svg = recolored(raw);
+          if (format === 'html') return { text: svg, said: '<svg> copied — ' + r.keb };
+          if (format === 'vue') {
+            return {
+              text: '<template>\n' + svg.replace(/^(?=.)/gm, '  ') + '\n</template>\n',
+              said: r.comp + '.vue copied',
+            };
+          }
+          if (format === 'blade') {
+            // The size becomes a default, so <x-icon.name width="16" /> can override it.
+            var size = [];
+            var open = svg.replace(/<svg\b([^>]*)>/, function (all, attrs) {
+              var rest = attrs.replace(/\s(width|height)="([^"]*)"/g, function (a, k, v) {
+                size.push("'" + k + "' => '" + v + "'");
+                return '';
+              });
+              return '<svg {{ $attributes->merge([' + size.join(', ') + ']) }}' + rest + '>';
+            });
+            return { text: open + '\n', said: '<x-icon.' + r.keb + ' /> copied' };
+          }
+          if (format === 'js') {
+            return {
+              text: 'export const ' + r.con + ' = `' + svg.replace(/[\\`]|\$\{/g, '\\$&') + '`;\n',
+              said: r.con + ' copied',
+            };
+          }
+
+          var root = parsed(svg);
+          if (!root) return null;
+          if (format === 'rn') {
+            var used = {};
+            var body = jsx(
+              root,
+              '    ',
+              used,
+              ' width={size} height={size}' + jsxAttrs(root, ['width', 'height', 'xmlns']) +
+                ' color={color} {...props}'
+            );
+            var others = Object.keys(used)
+              .filter(function (n) {
+                return n !== 'Svg';
+              })
+              .sort();
+            return {
+              text:
+                'import Svg' + (others.length ? ', { ' + others.join(', ') + ' }' : '') +
+                " from 'react-native-svg';\n\nexport function " + r.comp +
+                "({ size = 24, color = '#141B34', ...props }) {\n  return (\n" + body + '  );\n}\n',
+              said: r.comp + ' copied — it needs react-native-svg',
+            };
+          }
+          return {
+            text:
+              (format === 'react-ts'
+                ? "import type { SVGProps } from 'react';\n\nexport function " + r.comp +
+                  '(props: SVGProps<SVGSVGElement>) {\n'
+                : 'export function ' + r.comp + '(props) {\n') +
+              '  return (\n' + jsx(root, '    ', null, jsxAttrs(root) + ' {...props}') + '  );\n}\n',
+            said: r.comp + ' copied',
+          };
+        }
+
+        function short(text) {
+          return text.length < 90 && text.indexOf('\n') === -1 ? text : '';
+        }
+
+        function save(name, text) {
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' }));
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function () {
+            URL.revokeObjectURL(a.href);
+          }, 1000);
+        }
+
         var toastTimer;
         grid.addEventListener('click', function (e) {
           var tile = e.target.closest('.tile');
           if (!tile) return;
-          var keb = tile.dataset.keb;
-          var note = '';
-          var snippet;
-          if (activeStyle === 'stroke') {
-            // The app's stroke icons come from the free font, which may not have it.
-            snippet = FREE[keb] ? 'HugeIcons.' + FREE[keb] : keb;
-            if (!FREE[keb]) note = ' — not in the free stroke font';
-          } else if (activeStyle === 'solid') snippet = 'HugeIconsSolid.' + byName[keb].sym;
-          else snippet = "HugeIconSvg('" + keb + "', style: HugeIconStyle." + activeStyle + ')';
-
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(snippet).then(
+          var r = byName[tile.dataset.keb];
+          var out = handover(r);
+          if (!out) show("couldn't read " + r.keb);
+          else if (out.file) {
+            save(out.file, out.text);
+            show(out.said);
+          } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(out.text).then(
               function () {
-                show(snippet + '  copied' + note);
+                show(out.said);
               },
               function () {
-                show(snippet + note);
+                // A short snippet can still be read off the toast and typed.
+                show(short(out.text) || "couldn't copy " + r.keb + ' — click the page, then the icon', 6000);
               }
             );
-          } else show(snippet + note);
+          } else show(short(out.text) || "this browser can't copy " + r.keb, 6000);
 
           document.querySelectorAll('.tile.hit').forEach(function (t) {
             t.classList.remove('hit');
           });
           tile.classList.add('hit');
         });
+
+        // The menu changes what a click copies, what the tiles are called, and
+        // which set of instructions is open under the title.
+        var who = document.getElementById('who');
+        var how = document.getElementById('how');
+
+        function setFormat(next) {
+          format = FOR[next] ? next : 'flutter';
+          who.value = format;
+          document.getElementById('ruleOut').textContent = FOR[format].rule;
+          document.getElementById('howTitle').textContent = 'How to use it — ' + FOR[format].label;
+          Array.prototype.forEach.call(how.querySelectorAll('[data-for]'), function (part) {
+            part.hidden = part.dataset.for.split(' ').indexOf(format) === -1;
+          });
+          var names = FOR[format].names;
+          document.getElementById('legend').hidden = !names || names === 'blade';
+          rows.forEach(dress);
+        }
+
+        who.addEventListener('change', function () {
+          setFormat(who.value);
+          try {
+            localStorage.setItem('hgi-for', format);
+          } catch (e) {}
+        });
+
+        var lastFor = '';
+        try {
+          lastFor = localStorage.getItem('hgi-for') || '';
+        } catch (e) {}
+        setFormat(lastFor);
+        document.getElementById('whoBox').hidden = false;
 
         function show(msg, ms) {
           toast.textContent = msg;
