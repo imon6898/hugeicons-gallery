@@ -11,7 +11,7 @@ from your disk instead, in the browser — nothing is uploaded, and nothing Pro 
 
 ## Pointing it at your folder
 
-Click **Choose folder** and pick the folder that holds the styles:
+Drag the folder that holds the styles onto the page, or click **Choose folder** and pick it:
 
 ```
 Hug_Icon/
@@ -22,10 +22,14 @@ Hug_Icon/
   Bulk/
 ```
 
-One pick fills every tab. Or add the style folders one at a time — each pick fills its own tab
-and leaves the others alone. Chrome and Edge remember what you picked, so a later visit opens it
+One folder fills every tab. Or add the style folders one at a time — each fills its own tab
+and leaves the others alone. Chrome and Edge remember what you gave them, so a later visit opens it
 again with at most one click on **Reopen** per folder; Firefox and Safari ask each visit. A style
 folder can sit a level or two down, as it does in Hugeicons' own download.
+
+Dragging is the surer way in. Chrome's folder window reopens inside whatever you picked last, so
+after picking `Stroke` it opens *inside* `Stroke`, where pressing Select just picks `Stroke` again —
+go up a level first. A drop can't land one level off. (Dropping needs Chrome or Edge.)
 
 The export carries some leftovers, which the page tidies as it reads:
 

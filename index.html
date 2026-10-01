@@ -554,6 +554,25 @@
         color: var(--ink-faint);
       }
 
+      /* Shown while a folder is dragged over the page */
+      .drop {
+        position: fixed;
+        inset: 12px;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--accent-deep);
+        background: var(--tint);
+        border: 2px dashed var(--accent);
+        border-radius: 16px;
+        pointer-events: none;
+      }
+      .drop[hidden] {
+        display: none;
+      }
+
       .tile .g.pro svg {
         display: block;
         width: 1em;
@@ -904,11 +923,11 @@ SvgPicture.asset(
       <section class="loadpro" id="loadpro">
         <h2 id="loadTitle">Point this at your Hugeicons folder</h2>
         <p id="loadText">
-          Choose the folder that <em>holds</em> <code>Stroke</code>, <code>Solid</code>,
-          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> — your
-          <code>Hug_Icon</code> folder, not one of the five inside it — and every tab fills at once.
-          The icons aren't in this repo, since the Pro styles can't be redistributed, so the page
-          reads them straight from your disk.
+          Drag the folder that <em>holds</em> <code>Stroke</code>, <code>Solid</code>,
+          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> onto this page — the
+          folder they all sit in, not one of the five — and every tab fills at once. Or pick it
+          with the button. The icons aren't in this repo, since the Pro styles can't be
+          redistributed, so the page reads them straight from your disk.
         </p>
         <div class="acts">
           <button type="button" id="pick">Choose folder</button>
@@ -962,6 +981,7 @@ SvgPicture.asset(
     </div>
 
     <div class="toast" id="toast"></div>
+    <div class="drop" id="drop" hidden>Drop the folder to load it</div>
 
     <script src="icons.js"></script>
     <script src="categories.js"></script>
@@ -1312,7 +1332,16 @@ SvgPicture.asset(
             if (SRC[s] && from.indexOf(SRC[s].from) === -1) from.push(SRC[s].from);
           });
           folderName.textContent = from.length === 1 ? from[0] : from.length + ' folders';
-          show(name + ': ' + got.join(', '));
+          // The dialog reopens inside the last folder picked, so picking Stroke
+          // twice is easy to do and looks like nothing happened. Say what's missing.
+          if (SRC[activeStyle]) show(name + ': ' + got.join(', '));
+          else {
+            show(
+              name + ' only has ' + got.join(', ') + ' icons — for ' + activeStyle +
+                ', drag in the folder that holds all five',
+              6000
+            );
+          }
           loadStyle(activeStyle);
         }
 
@@ -1388,7 +1417,7 @@ SvgPicture.asset(
                 style +
                 ' icons' +
                 (gaps
-                  ? ' · for every tab, choose the folder that holds all five (Hug_Icon)'
+                  ? ' · for every tab, drag in the folder that holds all five'
                   : (skipped ? ' · ' + skipped + ' non-icon files skipped' : '') +
                     (folded ? ' · ' + folded + ' duplicate names' : '')),
               gaps ? 6000 : 0
@@ -1481,9 +1510,11 @@ SvgPicture.asset(
             });
             loadTitle.textContent = name + " isn't loaded yet";
             loadText.textContent =
-              'The browser only lets this page see the folders you choose, and you chose ' +
-              from.join(' and ') + '. Choose the folder that holds all five styles (your ' +
-              'Hug_Icon folder) to fill every tab, or choose the ' + name + ' folder.';
+              'This page only sees the folders you give it, and so far that is ' +
+              from.join(' and ') + '. Drag the folder that holds all five styles onto this ' +
+              'page to fill every tab, or drag just the ' + name + ' folder. Choose folder ' +
+              'works too — if its window opens inside one of the style folders, go up a ' +
+              'level first (⌘↑ on a Mac).';
             pick.hidden = false;
             reopen.hidden = !waiting.length;
           } else {
@@ -1739,6 +1770,66 @@ SvgPicture.asset(
             return x < y ? -1 : x > y ? 1 : 0;
           });
           addFolder((files[0].webkitRelativePath || '').split('/')[0] || 'your folder', scanFiles(files));
+        });
+
+        // --- Dropping the folder ---------------------------------------------------
+        // A pick leaves the dialog opening inside that folder next time, where
+        // pressing Select just picks it again. A drop can't land one level off.
+        var dropzone = document.getElementById('drop');
+        var dropTimer;
+
+        function carriesFiles(e) {
+          var t = e.dataTransfer && e.dataTransfer.types;
+          return !!t && Array.prototype.indexOf.call(t, 'Files') !== -1;
+        }
+
+        // dragover keeps firing while the folder hovers, so when it stops the
+        // drag has left or landed — no enter/leave counting to get stuck.
+        window.addEventListener('dragover', function (e) {
+          if (!carriesFiles(e)) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+          dropzone.hidden = false;
+          clearTimeout(dropTimer);
+          dropTimer = setTimeout(function () {
+            dropzone.hidden = true;
+          }, 700);
+        });
+
+        window.addEventListener('drop', function (e) {
+          if (!carriesFiles(e)) return;
+          e.preventDefault();
+          clearTimeout(dropTimer);
+          dropzone.hidden = true;
+          // The handles have to be asked for before this handler returns.
+          var asks = [];
+          Array.prototype.forEach.call(e.dataTransfer.items || [], function (it) {
+            if (it.kind === 'file' && it.getAsFileSystemHandle) {
+              asks.push(
+                it.getAsFileSystemHandle().catch(function () {
+                  return null;
+                })
+              );
+            }
+          });
+          if (!asks.length) {
+            show('dropping a folder needs Chrome or Edge — use Choose folder', 6000);
+            return;
+          }
+          Promise.all(asks).then(function (handles) {
+            var dirs = handles.filter(function (h) {
+              return h && h.kind === 'directory';
+            });
+            if (!dirs.length) {
+              show('drop the folder itself, not the files in it', 6000);
+              return;
+            }
+            dirs.reduce(function (p, h) {
+              return p.then(function () {
+                return connect(h, null, true);
+              });
+            }, Promise.resolve());
+          });
         });
 
         applyStyle();
