@@ -519,6 +519,14 @@
         margin-left: 5px;
       }
 
+      /* A visitor who has brought nothing sees the free set and nothing about Pro:
+         the style tabs and the folder button wait for a key, a folder, or
+         #library in the address. */
+      :root:not(.own) .styles,
+      :root:not(.own) .ask.folder {
+        display: none;
+      }
+
       /* Local-folder loader for the Pro styles */
       .loadpro {
         margin-top: 22px;
@@ -883,10 +891,9 @@
         <div>
           <h1>Hugeicons gallery</h1>
           <p>
-            The free Hugeicons stroke set, with search and categories — and, when you point the
-            page at your own download, solid, twotone, duotone and bulk as well. Click any icon to
-            copy it the way you work: straight into Figma, as HTML, React, Vue, Laravel, Flutter or
-            React Native code, or as a file. Search matches the icon's name and its code name.
+            The free Hugeicons stroke set, with search and categories. Click any icon to copy it
+            the way you work: straight into Figma, as HTML, React, Vue, Laravel, Flutter or React
+            Native code, or as a file. Search matches the icon's name and its code name.
           </p>
           <div class="rule">
             <span>arrow-shrink-02</span>
@@ -1269,7 +1276,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           >
           — give it only the library repository, and leave Contents on read-only.</small
         >
-        <small
+        <small id="loadFine"
           >Your files never leave this machine — the page reads them locally and uploads nothing.
           Chrome and Edge remember your folders; other browsers ask again each visit.</small
         >
@@ -1660,8 +1667,35 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           return from;
         }
 
+        // Whose page is it? Someone who has brought their own icons — a key, a
+        // folder, or #library in the address to say they are about to — gets the
+        // Pro tabs and the ways in. Everyone else gets the free set and no talk
+        // of Pro.
+        function owner() {
+          return (
+            !!savedKey() ||
+            waiting.length > 0 ||
+            picks.length > 0 ||
+            sources().length > 0 ||
+            location.hash === '#library'
+          );
+        }
+
+        function mode() {
+          document.documentElement.classList.toggle('own', owner());
+        }
+
+        function press(style) {
+          activeStyle = style;
+          styleBar.querySelectorAll('button').forEach(function (b) {
+            if (b.dataset.style === style) b.setAttribute('aria-pressed', 'true');
+            else b.removeAttribute('aria-pressed');
+          });
+        }
+
         // The folder button and the footer both say where the icons come from.
         function credit() {
+          mode();
           var from = sources();
           folderName.textContent = waiting.length
             ? 'Reopen ' + waiting[0].handle.name
@@ -1800,7 +1834,9 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
                 style +
                 ' icons' +
                 (src.from === FREE_SET
-                  ? ' · free for everyone — the other four styles are Pro'
+                  ? owner()
+                    ? ' · the free set — the other four styles are Pro'
+                    : ''
                   : gaps
                   ? ' · for every tab, drag in the folder that holds all five'
                   : (skipped ? ' · ' + skipped + ' non-icon files skipped' : '') +
@@ -1905,6 +1941,17 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         function panel() {
           var name = title(activeStyle);
           var busy = opening || !!reading[activeStyle];
+          var mine = owner();
+          document.getElementById('loadFine').hidden = !mine;
+          if (!mine) {
+            // Nothing here is the visitor's to set up: the free set is on its way.
+            pick.hidden = reopen.hidden = useKey.hidden = keyForm.hidden = keyNote.hidden = true;
+            loadTitle.textContent = freeFailed ? "Couldn't load the icons" : 'Loading the icons…';
+            loadText.textContent = freeFailed
+              ? 'Check your connection, then reload the page.'
+              : reading[activeStyle] || '';
+            return;
+          }
           pick.hidden = busy;
           reopen.hidden = busy || !waiting.length;
           useKey.hidden = busy || online;
@@ -2275,6 +2322,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
             localStorage.removeItem('hgi-key');
           } catch (e) {}
           forget.hidden = true;
+          mode();
         }
 
         function libraryFile(name, key) {
@@ -2382,6 +2430,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
 
         opening = !!savedKey();
         forget.hidden = !opening;
+        mode();
         applyStyle();
 
         // A return visit. With a key saved, the online library opens by itself.
@@ -2421,6 +2470,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
                     return p.styles;
                   });
                 }
+                mode();
                 return Promise.all(
                   list.map(function (p) {
                     if (!p.handle || !p.handle.queryPermission) return null;
@@ -2444,6 +2494,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         // package. It fills the Stroke tab once it's clear the visitor has brought no
         // Stroke of their own, and steps aside the moment they do.
         var FREE_SET = 'the free set';
+        var freeFailed = false;
 
         function freeStroke() {
           if (SRC.stroke) return;
@@ -2465,9 +2516,24 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
               });
               addFolder(FREE_SET, found);
             })
-            .catch(function () {});
+            .catch(function () {
+              freeFailed = true;
+              if (!LIB[activeStyle]) applyStyle();
+            });
         }
-        settled.then(freeStroke);
+        settled.then(function () {
+          mode();
+          // With nothing of their own, the free set is all there is to look at —
+          // whatever tab this browser was on last time.
+          if (!owner() && activeStyle !== 'stroke') press('stroke');
+          freeStroke();
+        });
+
+        // #library is the way in on a browser that has no key or folder yet.
+        window.addEventListener('hashchange', function () {
+          mode();
+          if (!LIB[activeStyle]) applyStyle();
+        });
 
         // --- Who is asking -----------------------------------------------------------
         // One click hands a designer, a web developer and an app developer three

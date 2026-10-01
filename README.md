@@ -5,10 +5,17 @@ React, Vue, Laravel, Flutter or React Native code, or as a file.
 
 **→ [imon6898.github.io/hugeicons-gallery](https://imon6898.github.io/hugeicons-gallery/)**
 
-Open it and the free **Stroke** set is there: 6,039 icons, MIT, nothing to set up. Solid, Twotone,
-Duotone and Bulk are Pro. They can't be redistributed, so nothing Pro is in this repo — the page
-reads those from your own download instead: a [folder on your disk](#pointing-it-at-your-folder),
-or a [private online library](#a-private-online-library) opened with a key.
+Open it and the free **Stroke** set is there: 6,039 icons, MIT, nothing to set up. That is all a
+visitor sees — no Pro tabs, and nothing to choose.
+
+Solid, Twotone, Duotone and Bulk are Pro. They can't be redistributed, so nothing Pro is in this
+repo; the page reads those from your own download instead: a
+[folder on your disk](#pointing-it-at-your-folder), or a
+[private online library](#a-private-online-library) opened with a key. The tabs and the buttons for
+that appear once the browser has a key or a folder. On a browser that has neither yet, open the
+page with `#library` on the end —
+[imon6898.github.io/hugeicons-gallery/#library](https://imon6898.github.io/hugeicons-gallery/#library)
+— or just drag your folder onto it.
 
 ## Copy for…
 
