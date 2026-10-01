@@ -15,6 +15,13 @@ its own `fill-opacity` / `stroke-opacity` keep the tones apart.
 
 Multi-*hue* artwork (two genuinely different colours, not two opacities) can't
 survive this — those files are reported and skipped.
+
+White is not a second hue. In duotone and bulk a white fill is a knockout: it
+covers the tinted layer to cut a shape out of it. Counting it as a colour
+skipped half of every duotone set, so the ink around it is recoloured and the
+white is left white — right on a light background, and the most flutter_svg
+can do, since SvgTheme has no "background colour". (The gallery paints those
+shapes with its tile colour instead.)
 """
 import re
 import sys
@@ -35,12 +42,13 @@ NAMED = {
     'teal': '#008080', 'navy': '#000080', 'orange': '#ffa500',
 }
 SKIP = {'none', 'currentcolor', 'transparent', 'inherit', ''}
+WHITE = '#ffffff'
 
 
 def norm(value: str):
-    """Canonical #rrggbb, or None when the value paints nothing."""
+    """Canonical #rrggbb, or None when the value isn't a colour to recolour."""
     v = value.strip().lower()
-    if v in SKIP:
+    if v in SKIP or v.startswith(('url(', 'var(')):
         return None
     if v in NAMED:
         return NAMED[v]
@@ -59,6 +67,23 @@ def norm(value: str):
     return v
 
 
+def ink(src: str) -> set:
+    """The colours to recolour. White only counts when it's all there is."""
+    found = {h for h in (norm(m.group(2)) for m in COLOR.finditer(src)) if h}
+    return found - {WHITE} or found
+
+
+def recolor(src: str):
+    """`src` with its ink as currentColor, or None when it has two real hues."""
+    hues = ink(src)
+    # Two distinct hues means real colour, not two opacities of one colour.
+    if len(hues) > 1:
+        return None
+    return COLOR.sub(
+        lambda m: f'{m.group(1)}="currentColor"' if norm(m.group(2)) in hues
+        else m.group(0), src)
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         sys.exit(__doc__)
@@ -73,17 +98,11 @@ def main() -> int:
 
     for f in files:
         src = f.read_text(encoding='utf-8')
-        hues = {h for h in (norm(m.group(2)) for m in COLOR.finditer(src)) if h}
-
-        # Two distinct hues means real colour, not two opacities of one colour.
-        if len(hues) > 1:
-            multihue.append((f, sorted(hues)))
+        out = recolor(src)
+        if out is None:
+            multihue.append((f, sorted(ink(src))))
             skipped += 1
             continue
-
-        out = COLOR.sub(
-            lambda m: f'{m.group(1)}="currentColor"' if norm(m.group(2))
-            else m.group(0), src)
         if out == src:
             skipped += 1
             continue

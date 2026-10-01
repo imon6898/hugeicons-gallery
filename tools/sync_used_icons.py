@@ -14,8 +14,13 @@ are different — stroke and solid are single-colour, belong in a .ttf, and shri
 to a couple of KB. Use `generate.py` for those.
 
 --library may be laid out either way:
-    <library>/bulk/moon-02.svg          style from the folder
+    <library>/Duotone/moon-02.svg       style from the folder; Stroke/ and
+                                        Solid/ beside it are skipped
     <library>/moon-02.svg               single-style download
+
+Folders and file names are read the way the gallery reads them, so whatever it
+copies — HugeIconSvg('add-circle-half-dot') for 'add circle-half-dot.svg' —
+is found here too.
 """
 import argparse
 import re
@@ -23,13 +28,14 @@ import shutil
 import sys
 from pathlib import Path
 
+from svg_currentcolor import recolor
+
 STYLES = ('twotone', 'duotone', 'bulk')
 DEFAULT_STYLE = 'duotone'          # must match HugeIconSvg's default
 
 CALL = re.compile(r'HugeIconSvg\s*\(')
 NAME = re.compile(r"""['"]([a-z0-9][a-z0-9-]*)['"]""")
 STYLE = re.compile(r'HugeIconStyle\.(\w+)')
-HEX = re.compile(r'(fill|stroke)\s*=\s*"(#[0-9a-fA-F]{3,8})"')
 
 
 def arg_list(src: str, open_paren: int) -> str:
@@ -75,22 +81,54 @@ def used_icons(lib: Path) -> set:
     return found
 
 
+def style_of(folder: str):
+    """The style a folder name stands for — styleOf() in index.html."""
+    f = folder.lower()
+    if re.search(r'two[\s_-]?tone', f):
+        return 'twotone'
+    if re.search(r'duo[\s_-]?tone', f):
+        return 'duotone'
+    for s in ('bulk', 'solid', 'stroke'):
+        if s in f:
+            return s
+    return None
+
+
+def kebab(stem: str) -> str:
+    """'add circle-half-dot', 'voice-iD', 'c++' -> the name the gallery copies.
+
+    Mirrors kebab() in index.html; change both or neither.
+    """
+    s = stem.lower().replace('&', '-and-').replace('+', '-plus-')
+    return re.sub(r'[^a-z0-9]+', '-', s).strip('-')
+
+
 def index(library: Path) -> dict:
-    """(style, name) -> source file, for every SVG in the download."""
+    """(style, name) -> source file, for every multi-tone SVG in the download.
+
+    The deepest style-named folder decides the style. A file under no style
+    folder at all is a single-style download and stands in for any of them —
+    but one under Stroke/ or Solid/ is font material, never a multi-tone asset.
+    That fallback used to catch those too, so a Hug_Icon-style download with
+    Stroke/ beside Duotone/ could ship a stroke drawing as the duotone one.
+    """
     out = {}
-    for f in library.rglob('*.svg'):
-        parts = {p.lower() for p in f.relative_to(library).parts[:-1]}
-        styles = [s for s in STYLES if s in parts] or list(STYLES)
-        for s in styles:
-            out.setdefault((s, f.stem), f)
+    for f in sorted(library.rglob('*.svg')):
+        folders = f.relative_to(library).parts[:-1]
+        named = [s for s in map(style_of, reversed(folders)) if s]
+        if named and named[0] not in STYLES:
+            continue
+        name = kebab(f.stem)
+        for s in named[:1] or STYLES:
+            # Two files can fold onto one name; keep the one already spelled right.
+            held = out.get((s, name))
+            if held is None or (f.stem == name and held.stem != name):
+                out[(s, name)] = f
     return out
 
 
 def to_current_color(text: str) -> str:
-    hues = {m.group(2).lower() for m in HEX.finditer(text) if m.group(2) != 'none'}
-    if len({h[:7] for h in hues}) > 1:
-        return text                     # real multi-hue art — leave it alone
-    return HEX.sub(lambda m: f'{m.group(1)}="currentColor"', text)
+    return recolor(text) or text        # real multi-hue art — leave it alone
 
 
 def main() -> int:
