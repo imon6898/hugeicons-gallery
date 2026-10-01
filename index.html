@@ -905,10 +905,11 @@ SvgPicture.asset(
       <section class="loadpro" id="loadpro">
         <h2 id="loadTitle">Point this at your Hugeicons folder</h2>
         <p id="loadText">
-          Pick the folder that holds <code>Stroke</code>, <code>Solid</code>,
-          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> to fill every tab at
-          once, or add the style folders one at a time. The icons aren't in this repo, since the Pro
-          styles can't be redistributed, so the page reads them straight from your disk.
+          Choose the folder that <em>holds</em> <code>Stroke</code>, <code>Solid</code>,
+          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> — your
+          <code>Hug_Icon</code> folder, not one of the five inside it — and every tab fills at once.
+          The icons aren't in this repo, since the Pro styles can't be redistributed, so the page
+          reads them straight from your disk.
         </p>
         <div class="acts">
           <button type="button" id="pick">Choose folder</button>
@@ -1398,13 +1399,19 @@ SvgPicture.asset(
             TOTAL[style] = n;
             placeRows();
             if (style === activeStyle) applyStyle();
+            var gaps = STYLES.filter(function (s) {
+              return !SRC[s];
+            }).length;
             show(
               n.toLocaleString() +
                 ' ' +
                 style +
                 ' icons' +
-                (skipped ? ' · ' + skipped + ' non-icon files skipped' : '') +
-                (folded ? ' · ' + folded + ' duplicate names' : '')
+                (gaps
+                  ? ' · for every tab, choose the folder that holds all five (Hug_Icon)'
+                  : (skipped ? ' · ' + skipped + ' non-icon files skipped' : '') +
+                    (folded ? ' · ' + folded + ' duplicate names' : '')),
+              gaps ? 6000 : 0
             );
           });
         }
@@ -1488,10 +1495,15 @@ SvgPicture.asset(
             pick.hidden = true;
             reopen.hidden = true;
           } else if (Object.keys(SRC).length) {
-            loadTitle.textContent = 'Add your ' + name + ' folder';
+            var from = [];
+            STYLES.forEach(function (s) {
+              if (SRC[s] && from.indexOf(SRC[s].from) === -1) from.push(SRC[s].from);
+            });
+            loadTitle.textContent = name + " isn't loaded yet";
             loadText.textContent =
-              'Choose the ' + name + ' folder — the tabs you already have stay put — or the ' +
-              'folder that holds all five styles to fill every tab at once.';
+              'The browser only lets this page see the folders you choose, and you chose ' +
+              from.join(' and ') + '. Choose the folder that holds all five styles (your ' +
+              'Hug_Icon folder) to fill every tab, or choose the ' + name + ' folder.';
             pick.hidden = false;
             reopen.hidden = !waiting.length;
           } else {
@@ -1822,13 +1834,13 @@ SvgPicture.asset(
           tile.classList.add('hit');
         });
 
-        function show(msg) {
+        function show(msg, ms) {
           toast.textContent = msg;
           toast.classList.add('up');
           clearTimeout(toastTimer);
           toastTimer = setTimeout(function () {
             toast.classList.remove('up');
-          }, 1800);
+          }, ms || 1800);
         }
 
         document.querySelectorAll('.snip button').forEach(function (b) {
