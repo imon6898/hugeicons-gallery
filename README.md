@@ -1,12 +1,49 @@
-# Hugeicons — stroke rounded
+# Hugeicons — your folder
 
-A searchable gallery of the **6,228 free Hugeicons stroke-rounded glyphs**, rendered from the same
-`.ttf` that ships inside the app, with the Dart symbol for each one.
+A searchable gallery for your own Hugeicons download: point it at the folder and every style in it
+— Stroke, Solid, Twotone, Duotone and Bulk — shows up with search, categories and the code for each
+icon.
 
 **→ [imon6898.github.io/hugeicons-gallery](https://imon6898.github.io/hugeicons-gallery/)**
 
-Search matches both the Hugeicons name and the Dart name — `call-ringing`, `callRinging` and
-`call ringing` all find the same glyph. Click a tile to copy `HugeIcons.callRinging01`.
+No icons live on the page itself. The Pro styles can't be redistributed, so the page reads them
+from your disk instead, in the browser — nothing is uploaded, and nothing Pro is in this repo.
+
+## Pointing it at your folder
+
+Click **Choose folder** and pick the folder that holds the styles:
+
+```
+Hug_Icon/
+  Stroke/    passport.svg …
+  Solid/
+  Twotone/
+  Duotone/
+  Bulk/
+```
+
+One pick fills every tab. Chrome and Edge remember the folder, so a later visit opens it again
+with at most one click on **Reopen**; Firefox and Safari ask each visit. A style folder can sit a
+level or two down, as it does in Hugeicons' own download, and picking a single style's folder
+works too.
+
+The export carries some leftovers, which the page tidies as it reads:
+
+- **Names are folded to kebab case.** `add circle-half-dot.svg` shows as `add-circle-half-dot`,
+  `voice-iD` as `voice-id`, `c++` as `c-plus-plus`. Hovering a tile shows the original file name.
+- **Non-icons are skipped.** Figma's green "New tag" badges, default-named shapes like
+  `Ellipse 2021`, and the `Text-1`…`Text-24` labels (none of them on a 24×24 canvas) don't get a
+  tile. The toast says how many were skipped.
+- **Colours follow the theme.** The ink becomes `currentColor`, and white fills — knockouts in
+  duotone and bulk — take the tile's own background, so they read right in light and dark.
+
+Click a tile to copy:
+
+| Tab | Copies |
+|---|---|
+| Stroke | `HugeIcons.callRinging01` — the free font's symbol, if the free font has that icon |
+| Solid | `HugeIconsSolid.callRinging01` |
+| Twotone / Duotone / Bulk | `HugeIconSvg('call-ringing-01', style: HugeIconStyle.duotone)` |
 
 ## Naming
 
@@ -17,7 +54,8 @@ arrow-shrink-02   →   HugeIcons.arrowShrink02
 sun-cloud-big-rain-01  →  HugeIcons.sunCloudBigRain01
 ```
 
-Seventeen names can't make that trip cleanly and are marked `!` in the gallery:
+Names that can't make that trip cleanly are marked `!` in the gallery. In the free font there are
+seventeen:
 
 - **16 collisions.** `arrow-down-01` and `arrow-down01` are different glyphs that camelCase
   identically, so the irregular one takes an `Alt` suffix — `arrowDown01` and `arrowDown01Alt`.
@@ -26,19 +64,15 @@ Seventeen names can't make that trip cleanly and are marked `!` in the gallery:
 - **1 leading digit.** `24-hours-clock` → `icon24HoursClock`, because Dart identifiers can't start
   with a number.
 
+A folder's own names follow the same rules — `3d-move` shows as `icon3dMove`.
+
 Don't assume a `-01` suffix exists, either: the family is `call-done` and `call-done-02`, with no
 `call-done-01`. The unsuffixed name *is* the first one.
 
-## What isn't here
-
-The free tier is **stroke rounded only** — one style, one weight, outlines. Solid, Bulk, Duotone,
-Twotone and the Sharp/Standard corner variants are 8 of Hugeicons' 10 styles and all Pro. If you
-need a filled icon for an active nav state, pair this with Material or build the active state from
-colour and weight instead of fill.
-
 ## Using it in Flutter
 
-Drop `hgi-stroke-rounded.ttf` into `assets/fonts/` and declare the family:
+The free **stroke-rounded** set is the one thing that does ship here, as a font. Drop
+`hgi-stroke-rounded.ttf` into `assets/fonts/` and declare the family:
 
 ```yaml
 flutter:
@@ -48,7 +82,8 @@ flutter:
         - asset: assets/fonts/hgi-stroke-rounded.ttf
 ```
 
-Then generate the Dart class and use it like any `IconData`:
+Then take `app_icons.dart` — all 6,228 glyphs as `static const IconData`, already generated — and
+use it like any `IconData`:
 
 ```dart
 Icon(HugeIcons.callRinging01, size: 22, color: Colors.teal);
@@ -61,6 +96,17 @@ Two things that will bite you:
   `Map<String, IconData>` of consts.
 - **Don't ship a name→IconData map of everything.** Referencing all 6,228 glyphs defeats
   `--tree-shake-icons`, which otherwise cuts the 3 MB font to about 1.4 KB for a few icons.
+
+Twotone, duotone and bulk need two tones, and a font glyph only has one, so those stay SVG. Copy
+just the ones your code uses into the app, normalised to `currentColor`:
+
+```bash
+python3 tools/sync_used_icons.py --library /path/to/Hug_Icon --app ../your-app
+```
+
+It reads `HugeIconSvg(...)` calls under `lib/`, copies those SVGs into
+`assets/icons/hugeicons/<style>/`, and prunes the ones nothing references. It reads folders and
+names the way the gallery does, so whatever you copied from a tile is found.
 
 ## Missing an icon?
 
@@ -79,13 +125,17 @@ After a Hugeicons release, or once a custom icon is merged:
 curl -sSL -o icons.css https://use.hugeicons.com/font/icons.css
 curl -sSL -o hgi-stroke-rounded.ttf https://use.hugeicons.com/font/hgi-stroke-rounded.ttf
 python3 tools/generate.py icons.css
+python3 tools/categorize.py
 ```
 
-That rewrites `icons.js` for this page and `app_icons.dart` for the Flutter side. `icons.css` is the
-only source of truth — there is no JSON metadata endpoint, and the font's name set doesn't match the
-Hugeicons GitHub repo's SVG filenames.
+`generate.py` rewrites `icons.js` and `app_icons.dart`; `categorize.py` tags `icons.js` with
+categories and writes the rules to `categories.js`, which the page runs against your folder's
+names. `icons.css` is the only source of truth for the free set — there is no JSON metadata
+endpoint, and the font's name set doesn't match the Hugeicons GitHub repo's SVG filenames.
 
 ## Licence
 
-Icons © Hugeicons, MIT — see [`MIT-Hugeicons.txt`](MIT-Hugeicons.txt), which must stay with the font
-in anything you redistribute. Inter is SIL OFL 1.1. The gallery page itself is MIT.
+The free stroke-rounded icons are © Hugeicons, MIT — see [`MIT-Hugeicons.txt`](MIT-Hugeicons.txt),
+which must stay with the font in anything you redistribute. The Pro styles stay under your own
+Hugeicons licence; they're read from your disk and never stored here. Inter is SIL OFL 1.1. The
+gallery page itself is MIT.

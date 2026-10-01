@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Tag every glyph with a Huge Icon Set category and rewrite icons.js.
+"""Tag every glyph with a Huge Icon Set category, rewrite icons.js, and write
+the rules themselves to categories.js.
 
     python3 tools/categorize.py
 
 Categories come from the Huge Icon Set v2.0 sheet. The font ships no category
 metadata, so these are keyword rules over the icon name — first match wins, so
 specific rules must sit above general ones.
+
+The gallery runs the same rules in the browser (its `matches()` mirrors the one
+here), because a folder you point it at has names the free font never had.
 """
 import json
 import re
@@ -106,6 +110,9 @@ tagged = [[r[0], r[1], r[2], categorize(r[1])] for r in ICONS]
 
 (ROOT / 'icons.js').write_text(
     'const ICONS=' + json.dumps(tagged, separators=(',', ':')) + ';', encoding='utf-8')
+
+(ROOT / 'categories.js').write_text(
+    'const CATEGORY_RULES=' + json.dumps(RULES, separators=(',', ':')) + ';', encoding='utf-8')
 
 from collections import Counter
 counts = Counter(t[3] for t in tagged)

@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hugeicons — stroke rounded</title>
+    <title>Hugeicons — your folder</title>
     <meta
       name="description"
-      content="Searchable gallery of the 6,228 free Hugeicons stroke-rounded glyphs, with the Dart symbol for each."
+      content="Browse your own Hugeicons download — stroke, solid, twotone, duotone and bulk — read straight from your disk, with the Dart code for each icon."
     />
-    <meta property="og:title" content="Hugeicons — stroke rounded" />
+    <meta property="og:title" content="Hugeicons — your folder" />
     <meta
       property="og:description"
-      content="6,228 glyphs. Search by Hugeicons name or Dart symbol, click to copy."
+      content="Pick your Hugeicons folder once, then search every style and click to copy."
     />
     <link
       rel="icon"
@@ -404,6 +404,22 @@
       .ask:hover {
         background: var(--accent-deep);
       }
+      button.ask {
+        border: 0;
+        cursor: pointer;
+      }
+      .ask.folder {
+        color: var(--accent-deep);
+        background: var(--surface);
+        box-shadow: inset 0 0 0 1px var(--hairline);
+      }
+      .ask.folder:hover {
+        background: var(--tint);
+      }
+      .ask:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
       .ask .g {
         font-family: 'Hugeicons';
         font-weight: 400;
@@ -485,24 +501,51 @@
         line-height: 1.6;
         color: var(--ink-muted);
       }
-      .loadpro label {
-        display: inline-block;
+      .loadpro code {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--ink);
+      }
+      .loadpro .acts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+      .loadpro button {
         padding: 10px 18px;
+        font-family: var(--ui);
         font-size: 13px;
         font-weight: 600;
         color: #fff;
         background: var(--accent);
+        border: 0;
         border-radius: 9px;
         cursor: pointer;
       }
-      .loadpro label:hover {
+      .loadpro button:hover {
         background: var(--accent-deep);
       }
-      .loadpro input {
+      .loadpro button.quiet {
+        color: var(--accent-deep);
+        background: var(--tint);
+      }
+      .loadpro button.quiet:hover {
+        background: var(--surface-sunk);
+      }
+      .loadpro button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .loadpro button[hidden] {
+        display: none;
+      }
+      .picker {
         position: absolute;
         width: 1px;
         height: 1px;
         opacity: 0;
+        pointer-events: none;
       }
       .loadpro small {
         display: block;
@@ -516,7 +559,10 @@
         width: 1em;
         height: 1em;
       }
+      /* Sized before the artwork arrives, so tiles don't jump as they fill. */
       .tile .g.pro {
+        width: 1em;
+        height: 1em;
         color: var(--ink);
       }
 
@@ -559,6 +605,11 @@
         opacity: 0.55;
         margin-left: 5px;
       }
+      /* display:flex/grid outrank the UA's [hidden] rule, so restate it. */
+      .cats[hidden],
+      .grid[hidden] {
+        display: none;
+      }
 
       /* Grid */
       .grid {
@@ -567,7 +618,10 @@
         gap: 10px;
         padding-top: 22px;
       }
+      /* --knock tracks the tile's own background: in duotone and bulk a white
+         fill is a cut-out, so it has to match whatever sits behind it. */
       .tile {
+        --knock: var(--surface);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -583,6 +637,7 @@
         transition: border-color 0.12s, background 0.12s;
       }
       .tile:hover {
+        --knock: var(--tint);
         border-color: var(--accent);
         background: var(--tint);
       }
@@ -591,6 +646,7 @@
         outline-offset: 2px;
       }
       .tile.hit {
+        --knock: var(--tint);
         border-color: var(--accent);
         background: var(--tint);
       }
@@ -719,12 +775,12 @@
     <div class="wrap">
       <header class="masthead">
         <div>
-          <h1>Hugeicons — stroke rounded</h1>
+          <h1>Hugeicons — your folder</h1>
           <p>
-            All 6,228 glyphs in the free Hugeicons stroke-rounded set, rendered from the same
-            <code>.ttf</code> the app bundles. Click any icon to copy its Dart symbol. Search matches
-            both the Hugeicons name and the Dart name, so it works whether you're reading code or a
-            Figma layer.
+            Point this page at your Hugeicons download and every style in it — stroke, solid,
+            twotone, duotone and bulk — shows up here with search and categories. Click any icon to
+            copy the code for it. Search matches both the Hugeicons name and the Dart name, so it
+            works whether you're reading code or a Figma layer.
           </p>
           <div class="rule">
             <span>arrow-shrink-02</span>
@@ -829,8 +885,11 @@ SvgPicture.asset(
           <button type="button" data-size="26" aria-pressed="true">26</button>
           <button type="button" data-size="36">36</button>
         </div>
+        <button class="ask folder" type="button" id="folder">
+          <span class="g">&#xf1d01;</span> <span id="folderName">Choose folder</span>
+        </button>
         <a class="ask" id="ask" href="#"><span class="g">&#xf150c;</span> Request an icon</a>
-        <div class="tally" id="tally"></div>
+        <div class="tally" id="tally" hidden></div>
       </div>
 
       <div class="styles" id="styles" role="group" aria-label="Icon style">
@@ -841,27 +900,42 @@ SvgPicture.asset(
         <button type="button" data-style="bulk">Bulk<i>Pro</i></button>
       </div>
 
-      <div class="cats" id="cats" role="group" aria-label="Filter by category"></div>
+      <div class="cats" id="cats" role="group" aria-label="Filter by category" hidden></div>
 
-      <section class="loadpro" hidden id="loadpro">
-        <h2>Point this at your <span id="proName">duotone</span> folder</h2>
-        <p>
-          The Pro styles aren't in this repo and never will be — redistributing them
-          isn't allowed. So load them from your own disk instead: pick the unzipped
-          folder from your Hugeicons Pro download and they render right here, with the
-          same sections and search.
+      <section class="loadpro" id="loadpro">
+        <h2 id="loadTitle">Point this at your Hugeicons folder</h2>
+        <p id="loadText">
+          Pick the folder that holds <code>Stroke</code>, <code>Solid</code>,
+          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> — one pick fills every
+          tab. The icons aren't in this repo, since the Pro styles can't be redistributed, so the
+          page reads them straight from your disk.
         </p>
-        <label>
-          Choose folder
-          <input type="file" id="proInput" webkitdirectory directory multiple />
-        </label>
+        <div class="acts">
+          <button type="button" id="pick">Choose folder</button>
+          <button type="button" class="quiet" id="reopen" hidden>
+            Reopen <span id="reopenName"></span>
+          </button>
+        </div>
         <small
-          >Your files never leave this machine — the page reads them locally and
-          uploads nothing.</small
+          >Your files never leave this machine — the page reads them locally and uploads nothing.
+          Chrome and Edge remember the folder; other browsers ask again each visit.</small
         >
       </section>
 
-      <div class="grid" id="grid"></div>
+      <!-- Outside the panel: the toolbar's folder button clicks it too, and some
+           browsers won't open a file input that sits inside display:none. -->
+      <input
+        type="file"
+        class="picker"
+        id="proInput"
+        webkitdirectory
+        directory
+        multiple
+        tabindex="-1"
+        aria-hidden="true"
+      />
+
+      <div class="grid" id="grid" hidden></div>
 
       <div class="empty" hidden id="empty">
         <p>Nothing matches <code id="echo"></code>.</p>
@@ -873,18 +947,19 @@ SvgPicture.asset(
       <p class="legend">
         <span class="chip">!</span>
         <span
-          >17 names can't survive the kebab &rarr; camelCase transform cleanly — 16 collide with
-          another icon and take an <code>Alt</code> suffix, and <code>24-hours-clock</code> can't
-          start with a digit. Both names show on every tile, so trust the mono one.</span
+          >Marks a name that can't survive the kebab &rarr; camelCase transform cleanly — it
+          collides with another icon and takes an <code>Alt</code> suffix, or starts with a digit
+          and takes an <code>icon</code> prefix, like <code>24-hours-clock</code>. Both names show
+          on every tile, so trust the mono one.</span
         >
       </p>
 
       <footer>
         <span
-          >Icons &copy; Hugeicons, MIT —
-          <a href="MIT-Hugeicons.txt">notice</a></span
+          >Icons &copy; Hugeicons — the free stroke-rounded set is MIT
+          (<a href="MIT-Hugeicons.txt">notice</a>); Pro styles stay under your own licence</span
         >
-        <span>Free tier is stroke rounded only; solid and duotone are Pro</span>
+        <span>Read from your disk, never uploaded</span>
         <span><a href="https://github.com/imon6898/hugeicons-gallery">Source</a></span>
       </footer>
     </div>
@@ -892,9 +967,11 @@ SvgPicture.asset(
     <div class="toast" id="toast"></div>
 
     <script src="icons.js"></script>
+    <script src="categories.js"></script>
     <script>
       (function () {
         var REPO = 'https://github.com/imon6898/hugeicons-gallery';
+        var STYLES = ['stroke', 'solid', 'twotone', 'duotone', 'bulk'];
 
         var grid = document.getElementById('grid');
         var q = document.getElementById('q');
@@ -905,6 +982,18 @@ SvgPicture.asset(
         var ask = document.getElementById('ask');
         var askEmpty = document.getElementById('askEmpty');
         var askName = document.getElementById('askName');
+        var cats = document.getElementById('cats');
+        var styleBar = document.getElementById('styles');
+        var loadpro = document.getElementById('loadpro');
+        var loadTitle = document.getElementById('loadTitle');
+        var loadText = document.getElementById('loadText');
+        var pick = document.getElementById('pick');
+        var reopen = document.getElementById('reopen');
+        var reopenName = document.getElementById('reopenName');
+        var proInput = document.getElementById('proInput');
+        var folderBtn = document.getElementById('folder');
+        var folderName = document.getElementById('folderName');
+        var intro = loadText.innerHTML;
 
         // Issue-form fields prefill from query params keyed by their `id` in the YAML.
         function requestUrl(name) {
@@ -924,22 +1013,398 @@ SvgPicture.asset(
           return p.join('');
         }
 
-        var rows = [];
-        var frag = document.createDocumentFragment();
+        // --- Names -------------------------------------------------------------
+        // Hugeicons file names drift — 'add circle-half-dot', 'voice-iD', 'c++' —
+        // so fold each one onto the kebab form the rest of the set uses.
+        function kebab(stem) {
+          return stem
+            .toLowerCase()
+            .replace(/&/g, '-and-')
+            .replace(/\+/g, '-plus-')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        }
 
-        for (var i = 0; i < ICONS.length; i++) {
-          var sym = ICONS[i][0];
-          var keb = ICONS[i][1];
-          var cp = ICONS[i][2];
+        // The free font's symbols, spelled exactly as app_icons.dart spells them.
+        var FREE = Object.create(null);
+        ICONS.forEach(function (r) {
+          FREE[r[1]] = r[0];
+        });
+
+        // Anything else gets a symbol by tools/generate.py's rules: lowerCamelCase,
+        // `icon` before a leading digit, `Icon` after a keyword, `Alt` on a clash.
+        var KEYWORDS = Object.create(null);
+        (
+          'assert break case catch class const continue default do else enum extends false ' +
+          'final finally for if in is new null rethrow return super switch this throw true try ' +
+          'var void while with hashCode runtimeType toString noSuchMethod'
+        )
+          .split(' ')
+          .forEach(function (w) {
+            KEYWORDS[w] = true;
+          });
+
+        var SYM = Object.create(null);
+        function nameSymbols(names) {
+          var taken = Object.create(null);
+          for (var f in FREE) taken[FREE[f]] = f;
+          SYM = Object.create(null);
+          names.forEach(function (n) {
+            var s = FREE[n];
+            if (!s) {
+              s = camel(n);
+              if (/^\d/.test(s)) s = 'icon' + s;
+              if (KEYWORDS[s]) s += 'Icon';
+              for (var base = s, k = 2; taken[s]; k++) s = base + (k === 2 ? 'Alt' : 'Alt' + k);
+              taken[s] = n;
+            }
+            SYM[n] = s;
+          });
+        }
+
+        // tools/categorize.py's rules, run here too: a folder brings names the
+        // free font never had, so their categories can't be precomputed.
+        function matches(name, key) {
+          var last = key.charAt(key.length - 1);
+          if (last === '*') return name.indexOf(key.slice(0, -1)) !== -1;
+          if (last === '-' || /\d/.test(key)) return name.indexOf(key) !== -1;
+          return ('-' + name + '-').indexOf('-' + key + '-') !== -1;
+        }
+
+        function categorize(name) {
+          for (var i = 0; i < CATEGORY_RULES.length; i++) {
+            var keys = CATEGORY_RULES[i][1];
+            for (var j = 0; j < keys.length; j++) {
+              if (matches(name, keys[j])) return CATEGORY_RULES[i][0];
+            }
+          }
+          return 'Other';
+        }
+
+        // Figma leftovers ride along in the Pro export: green "New tag" badges,
+        // default-named shapes, and text labels drawn on any canvas but an
+        // icon's. Every real icon sits on 24x24, give or take a few units.
+        var JUNK = /^(new tag(-\d+)?|(ellipse|rectangle|frame|group|vector) \d+)$/i;
+        function junk(stem, text) {
+          if (JUNK.test(stem)) return true;
+          var m = /viewBox\s*=\s*["']\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)/.exec(text);
+          return !!m && !(m[1] >= 20 && m[1] <= 28 && m[2] >= 20 && m[2] <= 28);
+        }
+
+        // --- Artwork -----------------------------------------------------------
+        // currentColor for ink, the tile's background for white, '' to leave be.
+        function tone(value) {
+          var v = value.replace(/\s+/g, '').toLowerCase();
+          if (!v || /^(none|transparent|inherit|currentcolor)$/.test(v)) return '';
+          if (v.indexOf('url(') === 0 || v.indexOf('var(') === 0) return '';
+          if (/^(white|#fff|#ffff|#ffffff|#ffffffff|rgba?\(255,255,255(,1(\.0+)?)?\))$/.test(v)) {
+            return 'var(--knock)';
+          }
+          return 'currentColor';
+        }
+
+        // Make one exported SVG themeable and safe to inline:
+        //  - ink becomes currentColor, so the theme and hover drive it while the
+        //    artwork's own opacities keep the second tone apart;
+        //  - white becomes the tile's background. In duotone and bulk a white fill
+        //    is a knockout, not a colour: painted with ink it fills in solid, and
+        //    left white it glares on the dark theme;
+        //  - ids get a per-icon prefix, since thousands of icons share one
+        //    document and Figma's clip-path ids aren't unique across files;
+        //  - scripts, styles, handlers and outside references go.
+        var seq = 0;
+        function clean(text) {
+          var doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+          var svg = doc.documentElement;
+          if (svg.localName !== 'svg' || doc.getElementsByTagName('parsererror').length) return '';
+          var pre = 'hg' + ++seq + '-';
+          var els = [svg].concat(Array.prototype.slice.call(svg.getElementsByTagName('*')));
+          els.forEach(function (el) {
+            if (/^(script|style|foreignObject)$/.test(el.localName)) {
+              if (el.parentNode) el.parentNode.removeChild(el);
+              return;
+            }
+            Array.prototype.slice.call(el.attributes).forEach(function (a) {
+              var n = a.localName.toLowerCase();
+              if (n.indexOf('on') === 0) el.removeAttributeNode(a);
+              else if (n === 'id') a.value = pre + a.value;
+              else if (n === 'href') {
+                if (a.value.charAt(0) === '#') a.value = '#' + pre + a.value.slice(1);
+                else el.removeAttributeNode(a);
+              } else if (a.value.indexOf('url(') !== -1) {
+                a.value = a.value.replace(/url\(\s*(['"]?)#/g, 'url($1#' + pre);
+              }
+            });
+            ['fill', 'stroke'].forEach(function (p) {
+              var s = el.style ? el.style.getPropertyValue(p) : '';
+              var t = s && tone(s);
+              if (t) el.style.setProperty(p, t);
+              var v = el.getAttribute(p);
+              t = v === null ? '' : tone(v);
+              if (t === 'currentColor') el.setAttribute(p, t);
+              else if (t) {
+                // A presentation attribute can't hold var(); inline style can.
+                el.removeAttribute(p);
+                if (!s) el.style.setProperty(p, t);
+              }
+            });
+          });
+          return new XMLSerializer().serializeToString(svg);
+        }
+
+        // --- The folder ----------------------------------------------------------
+        function styleOf(dir) {
+          var d = dir.toLowerCase();
+          if (/two[\s_-]?tone/.test(d)) return 'twotone';
+          if (/duo[\s_-]?tone/.test(d)) return 'duotone';
+          if (/bulk/.test(d)) return 'bulk';
+          if (/solid/.test(d)) return 'solid';
+          if (/stroke/.test(d)) return 'stroke';
+          return null;
+        }
+
+        // A folder with no style in its name is whichever tab asked for it.
+        function settle(found, loose) {
+          if (!Object.keys(found).length && loose.length) found[activeStyle] = loose;
+          return found;
+        }
+
+        function each(it, fn) {
+          return it.next().then(function (r) {
+            if (r.done) return;
+            fn(r.value);
+            return each(it, fn);
+          });
+        }
+
+        // Hugeicons' own download nests the style folders a level or two down,
+        // so walk a little way rather than demand one exact layout. The first
+        // folder to claim a style keeps it — 'stroke-rounded' and
+        // 'stroke-sharp' must not end up mixed into one tab.
+        function scanHandle(dir) {
+          var found = Object.create(null);
+          var owner = Object.create(null);
+          var loose = [];
+          function walk(d, path, depth, style) {
+            var subs = [];
+            return each(d.values(), function (h) {
+              if (h.kind === 'directory') subs.push(h);
+              else if (/\.svg$/i.test(h.name)) {
+                var item = {
+                  stem: h.name.replace(/\.svg$/i, ''),
+                  read: function () {
+                    return h.getFile().then(function (file) {
+                      return file.text();
+                    });
+                  },
+                };
+                if (style) (found[style] = found[style] || []).push(item);
+                else if (depth === 0) loose.push(item);
+              }
+            }).then(function () {
+              subs.sort(function (a, b) {
+                return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+              });
+              return subs.reduce(function (p, sub) {
+                return p.then(function () {
+                  var own = styleOf(sub.name);
+                  var sp = path + '/' + sub.name;
+                  if (own) {
+                    if (owner[own] && owner[own] !== sp) return;
+                    owner[own] = sp;
+                  }
+                  if (!own && !style && depth >= 2) return;
+                  if (depth >= 6) return;
+                  return walk(sub, sp, depth + 1, own || style);
+                });
+              }, Promise.resolve());
+            });
+          }
+          var own = styleOf(dir.name);
+          if (own) owner[own] = dir.name;
+          return walk(dir, dir.name, 0, own).then(function () {
+            return settle(found, loose);
+          });
+        }
+
+        // The <input webkitdirectory> fallback hands over every file at once.
+        function scanFiles(files) {
+          var found = Object.create(null);
+          var owner = Object.create(null);
+          var loose = [];
+          files.forEach(function (f) {
+            if (!/\.svg$/i.test(f.name)) return;
+            var dirs = (f.webkitRelativePath || f.name).split('/').slice(0, -1);
+            var style = null;
+            var at = -1;
+            for (var i = dirs.length - 1; i >= 0 && !style; i--) {
+              style = styleOf(dirs[i]);
+              at = i;
+            }
+            var item = {
+              stem: f.name.replace(/\.svg$/i, ''),
+              read: function () {
+                return f.text();
+              },
+            };
+            if (style) {
+              var path = dirs.slice(0, at + 1).join('/');
+              if (owner[style] && owner[style] !== path) return;
+              owner[style] = path;
+              (found[style] = found[style] || []).push(item);
+            } else if (dirs.length <= 1) loose.push(item);
+          });
+          return settle(found, loose);
+        }
+
+        // A few dozen reads in flight at once: enough to keep the disk busy,
+        // not so many that 4,000 promises queue up behind each other.
+        function readAll(list, progress) {
+          var out = new Array(list.length);
+          var next = 0;
+          var done = 0;
+          function worker() {
+            if (next >= list.length) return Promise.resolve();
+            var i = next++;
+            return list[i]
+              .read()
+              .then(
+                function (t) {
+                  out[i] = t;
+                },
+                function () {
+                  out[i] = null;
+                }
+              )
+              .then(function () {
+                if (++done % 250 === 0) progress(done);
+                return worker();
+              });
+          }
+          var workers = [];
+          for (var w = 0; w < 24; w++) workers.push(worker());
+          return Promise.all(workers).then(function () {
+            return out;
+          });
+        }
+
+        var SRC = null; // style -> [{ stem, read }] for the connected folder
+        var LIB = Object.create(null); // style -> kebab name -> { file, text }
+        var ART = Object.create(null); // style -> kebab name -> cleaned markup
+        var TOTAL = Object.create(null);
+        var reading = Object.create(null); // style -> progress line while reading
+        var root = '';
+        var token = 0;
+        var activeStyle = 'stroke';
+        var activeCat = '';
+
+        try {
+          var lastStyle = localStorage.getItem('hgi-style');
+          if (STYLES.indexOf(lastStyle) !== -1) activeStyle = lastStyle;
+        } catch (e) {}
+        styleBar.querySelectorAll('button').forEach(function (b) {
+          if (b.dataset.style === activeStyle) b.setAttribute('aria-pressed', 'true');
+          else b.removeAttribute('aria-pressed');
+        });
+
+        function useFolder(name, found) {
+          token++;
+          SRC = found;
+          root = name;
+          LIB = Object.create(null);
+          ART = Object.create(null);
+          TOTAL = Object.create(null);
+          reading = Object.create(null);
+          rows = [];
+          byName = Object.create(null);
+          grid.textContent = '';
+
+          // Every name up front and in order, so a clash always settles the
+          // same way no matter which tab gets read first.
+          var names = Object.create(null);
+          STYLES.forEach(function (s) {
+            (found[s] || []).forEach(function (it) {
+              if (!JUNK.test(it.stem)) names[kebab(it.stem)] = true;
+            });
+          });
+          nameSymbols(Object.keys(names).filter(Boolean).sort());
+
+          folderName.textContent = name;
+          var got = STYLES.filter(function (s) {
+            return found[s];
+          });
+          show(got.length ? name + ': ' + got.join(', ') : 'no icon folders in ' + name);
+          loadStyle(activeStyle);
+        }
+
+        function loadStyle(style) {
+          var list = SRC && SRC[style];
+          if (!list || LIB[style] || reading[style]) {
+            if (style === activeStyle) applyStyle();
+            return;
+          }
+          var mine = token;
+          var of = ' of ' + list.length.toLocaleString() + ' files';
+          reading[style] = '0' + of;
+          if (style === activeStyle) applyStyle();
+
+          readAll(list, function (done) {
+            if (mine !== token) return;
+            reading[style] = done.toLocaleString() + of;
+            if (style === activeStyle) loadText.textContent = reading[style];
+          }).then(function (texts) {
+            if (mine !== token) return;
+            var lib = Object.create(null);
+            var n = 0;
+            var skipped = 0;
+            var folded = 0;
+            list.forEach(function (it, i) {
+              var t = texts[i];
+              var k = kebab(it.stem);
+              if (t === null || !k || junk(it.stem, t)) {
+                skipped++;
+                return;
+              }
+              // Two files can fold onto one name; keep the one already spelled right.
+              var prev = lib[k];
+              if (prev) {
+                folded++;
+                if (prev.stem === k || it.stem !== k) return;
+              } else n++;
+              lib[k] = { stem: it.stem, file: it.stem + '.svg', text: t };
+              rowFor(k);
+            });
+            delete reading[style];
+            LIB[style] = lib;
+            TOTAL[style] = n;
+            placeRows();
+            if (style === activeStyle) applyStyle();
+            show(
+              n.toLocaleString() +
+                ' ' +
+                style +
+                ' icons' +
+                (skipped ? ' · ' + skipped + ' non-icon files skipped' : '') +
+                (folded ? ' · ' + folded + ' duplicate names' : '')
+            );
+          });
+        }
+
+        // --- Tiles ---------------------------------------------------------------
+        var rows = [];
+        var byName = Object.create(null);
+
+        function rowFor(keb) {
+          var r = byName[keb];
+          if (r) return r;
+          var sym = SYM[keb] || camel(keb);
 
           var el = document.createElement('button');
           el.type = 'button';
           el.className = 'tile' + (sym !== camel(keb) ? ' flagged' : '');
-          el.title = 'U+' + cp.toUpperCase();
 
           var g = document.createElement('span');
-          g.className = 'g';
-          g.textContent = String.fromCodePoint(parseInt(cp, 16));
+          g.className = 'g pro';
           el.appendChild(g);
 
           var s = document.createElement('span');
@@ -952,47 +1417,127 @@ SvgPicture.asset(
           k.textContent = keb;
           el.appendChild(k);
 
-          el.dataset.sym = sym;
           el.dataset.keb = keb;
-          frag.appendChild(el);
-          rows.push({
-            el: el,
-            g: g,
-            keb: keb,
-            ch: g.textContent,
-            hay: (sym + ' ' + keb).toLowerCase(),
-            cat: ICONS[i][3],
-          });
+          var hay = (sym + ' ' + keb).toLowerCase();
+          r = { el: el, g: g, keb: keb, sym: sym, flat: hay.replace(/[-\s]/g, ''), cat: categorize(keb) };
+          byName[keb] = r;
+          rows.push(r);
+          return r;
         }
-        grid.appendChild(frag);
 
-        // Category chips, biggest first — the font ships no category data, so
-        // these come from keyword rules in tools/categorize.py.
-        var cats = document.getElementById('cats');
-        var activeCat = '';
-        var tally_ = {};
-        rows.forEach(function (r) {
-          tally_[r.cat] = (tally_[r.cat] || 0) + 1;
-        });
-        var order = Object.keys(tally_).sort(function (a, b) {
-          if (a === 'Other') return 1;
-          if (b === 'Other') return -1;
-          return tally_[b] - tally_[a];
-        });
-        [['', 'All', ICONS.length]]
-          .concat(
-            order.map(function (c) {
-              return [c, c, tally_[c]];
-            })
-          )
-          .forEach(function (c, i) {
-            var b = document.createElement('button');
-            b.type = 'button';
-            b.dataset.cat = c[0];
-            b.innerHTML = c[1] + '<i>' + c[2].toLocaleString() + '</i>';
-            if (i === 0) b.setAttribute('aria-pressed', 'true');
-            cats.appendChild(b);
+        // Keep the grid alphabetical as each style brings its own names.
+        function placeRows() {
+          rows.sort(function (a, b) {
+            return a.keb < b.keb ? -1 : a.keb > b.keb ? 1 : 0;
           });
+          var frag = document.createDocumentFragment();
+          rows.forEach(function (r) {
+            frag.appendChild(r.el);
+          });
+          grid.appendChild(frag);
+        }
+
+        function art(style, keb) {
+          var f = LIB[style] && LIB[style][keb];
+          if (!f) return '';
+          var memo = ART[style] || (ART[style] = Object.create(null));
+          if (!(keb in memo)) memo[keb] = clean(f.text);
+          return memo[keb];
+        }
+
+        // Painting thousands of inline SVGs up front locks the tab; fill on approach.
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (en) {
+              if (!en.isIntersecting) return;
+              io.unobserve(en.target);
+              en.target.innerHTML = art(activeStyle, en.target.parentNode.dataset.keb);
+            });
+          },
+          { rootMargin: '400px' }
+        );
+
+        function title(s) {
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function panel() {
+          var name = title(activeStyle);
+          if (reading[activeStyle]) {
+            loadTitle.textContent = 'Reading ' + name + '…';
+            loadText.textContent = reading[activeStyle];
+            pick.hidden = true;
+            reopen.hidden = true;
+          } else if (SRC) {
+            loadTitle.textContent = 'No ' + name + ' folder in ' + root;
+            loadText.textContent =
+              'Choose a folder that has one, or the ' + name + ' folder itself.';
+            pick.hidden = false;
+            reopen.hidden = true;
+          } else {
+            loadTitle.textContent = 'Point this at your Hugeicons folder';
+            loadText.innerHTML = intro;
+            pick.hidden = false;
+            reopen.hidden = !saved;
+          }
+        }
+
+        function applyStyle() {
+          var lib = LIB[activeStyle];
+          var ready = !!lib;
+          loadpro.hidden = ready;
+          grid.hidden = !ready;
+          cats.hidden = !ready;
+          tally.hidden = !ready;
+          io.disconnect();
+          rows.forEach(function (r) {
+            r.g.textContent = '';
+            var f = ready && lib[r.keb];
+            r.el.title = f ? f.file : '';
+            if (f) io.observe(r.g);
+          });
+          if (ready) {
+            buildCats();
+            filter();
+          } else {
+            empty.hidden = true;
+            panel();
+          }
+        }
+
+        // Category chips for the open style, biggest first — the files ship no
+        // category data, so these come from the keyword rules in categories.js.
+        function buildCats() {
+          var lib = LIB[activeStyle];
+          var by = Object.create(null);
+          var total = 0;
+          rows.forEach(function (r) {
+            if (!lib[r.keb]) return;
+            by[r.cat] = (by[r.cat] || 0) + 1;
+            total++;
+          });
+          if (activeCat && !by[activeCat]) activeCat = '';
+          var order = Object.keys(by).sort(function (a, b) {
+            if (a === 'Other') return 1;
+            if (b === 'Other') return -1;
+            return by[b] - by[a] || (a < b ? -1 : 1);
+          });
+          cats.textContent = '';
+          [['', 'All', total]]
+            .concat(
+              order.map(function (c) {
+                return [c, c, by[c]];
+              })
+            )
+            .forEach(function (c) {
+              var b = document.createElement('button');
+              b.type = 'button';
+              b.dataset.cat = c[0];
+              b.innerHTML = c[1] + '<i>' + c[2].toLocaleString() + '</i>';
+              if (c[0] === activeCat) b.setAttribute('aria-pressed', 'true');
+              cats.appendChild(b);
+            });
+        }
 
         cats.addEventListener('click', function (e) {
           var b = e.target.closest('button');
@@ -1006,13 +1551,12 @@ SvgPicture.asset(
         });
 
         function count(n) {
-          var total = ICONS.length.toLocaleString();
+          var total = TOTAL[activeStyle] || 0;
           tally.innerHTML =
-            n === ICONS.length
-              ? '<b>' + total + '</b> glyphs'
-              : '<b>' + n.toLocaleString() + '</b> of ' + total;
+            n === total
+              ? '<b>' + total.toLocaleString() + '</b> ' + activeStyle + ' icons'
+              : '<b>' + n.toLocaleString() + '</b> of ' + total.toLocaleString();
         }
-        count(ICONS.length);
 
         var timer;
         q.addEventListener('input', function () {
@@ -1021,16 +1565,19 @@ SvgPicture.asset(
         });
 
         function filter() {
+          var lib = LIB[activeStyle];
+          if (!lib) return;
           // Normalise so "call-ringing", "call ringing" and "callRinging" all match.
           var raw = q.value;
           var term = raw.toLowerCase().replace(/[-_\s]/g, '');
           var n = 0;
           for (var i = 0; i < rows.length; i++) {
+            var r = rows[i];
             var hit =
-              hasArt(rows[i]) &&
-              (!activeCat || rows[i].cat === activeCat) &&
-              (!term || rows[i].hay.replace(/[-\s]/g, '').indexOf(term) !== -1);
-            rows[i].el.hidden = !hit;
+              !!lib[r.keb] &&
+              (!activeCat || r.cat === activeCat) &&
+              (!term || r.flat.indexOf(term) !== -1);
+            r.el.hidden = !hit;
             if (hit) n++;
           }
           count(n);
@@ -1038,58 +1585,6 @@ SvgPicture.asset(
           askName.textContent = raw;
           askEmpty.href = requestUrl(raw);
           empty.hidden = n !== 0;
-        }
-
-        // --- Pro styles, read from the visitor's own disk -------------------
-        // The artwork is licensed for use, not redistribution, so it can never
-        // live in this repo. Reading it locally sidesteps that entirely: the
-        // files are parsed in the page and never sent anywhere.
-        var PRO = { solid: null, twotone: null, duotone: null, bulk: null };
-        var activeStyle = 'stroke';
-        var styleBar = document.getElementById('styles');
-        var loadpro = document.getElementById('loadpro');
-        var proName = document.getElementById('proName');
-        var proInput = document.getElementById('proInput');
-
-        // Painting 6,228 inline SVGs up front locks the tab; fill on approach.
-        var io = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (en) {
-              if (!en.isIntersecting) return;
-              io.unobserve(en.target);
-              var lib = PRO[activeStyle];
-              var art = lib && lib[en.target.parentNode.dataset.keb];
-              if (art) en.target.innerHTML = art;
-            });
-          },
-          { rootMargin: '400px' }
-        );
-
-        function hasArt(r) {
-          if (activeStyle === 'stroke') return true;
-          var lib = PRO[activeStyle];
-          return !!(lib && lib[r.keb]);
-        }
-
-        function applyStyle() {
-          var pro = activeStyle !== 'stroke';
-          var loaded = !pro || !!PRO[activeStyle];
-          proName.textContent = activeStyle;
-          loadpro.hidden = loaded;
-          grid.hidden = !loaded;
-          cats.hidden = !loaded;
-
-          rows.forEach(function (r) {
-            r.g.textContent = '';
-            if (!pro) {
-              r.g.className = 'g';
-              r.g.textContent = r.ch;
-            } else {
-              r.g.className = 'g pro';
-              if (loaded && PRO[activeStyle][r.keb]) io.observe(r.g);
-            }
-          });
-          if (loaded) filter();
         }
 
         styleBar.addEventListener('click', function (e) {
@@ -1100,81 +1595,154 @@ SvgPicture.asset(
           });
           b.setAttribute('aria-pressed', 'true');
           activeStyle = b.dataset.style;
-          applyStyle();
+          try {
+            localStorage.setItem('hgi-style', activeStyle);
+          } catch (e) {}
+          loadStyle(activeStyle);
+        });
+
+        // --- Picking, and remembering, the folder ---------------------------------
+        // Chrome and Edge can hand the same folder back on the next visit; the
+        // rest only have <input webkitdirectory>, which asks every time.
+        var saved = null; // a remembered folder still waiting for permission
+
+        function kv(mode, fn) {
+          return new Promise(function (resolve, reject) {
+            var open = indexedDB.open('hugeicons-gallery', 1);
+            open.onupgradeneeded = function () {
+              open.result.createObjectStore('kv');
+            };
+            open.onerror = function () {
+              reject(open.error);
+            };
+            open.onsuccess = function () {
+              var db = open.result;
+              var tx, req;
+              try {
+                tx = db.transaction('kv', mode);
+                req = fn(tx.objectStore('kv'));
+              } catch (e) {
+                // put() throws outright on a handle the browser can't store.
+                db.close();
+                reject(e);
+                return;
+              }
+              tx.oncomplete = function () {
+                db.close();
+                resolve(req.result);
+              };
+              tx.onerror = tx.onabort = function () {
+                db.close();
+                reject(tx.error);
+              };
+            };
+          });
+        }
+
+        function connect(h) {
+          saved = null;
+          reopen.hidden = true;
+          show('looking through ' + h.name + '…');
+          return scanHandle(h).then(
+            function (found) {
+              useFolder(h.name, found);
+            },
+            function () {
+              show("couldn't read " + h.name);
+            }
+          );
+        }
+
+        function chooseFolder() {
+          if (!window.showDirectoryPicker) {
+            proInput.click();
+            return;
+          }
+          window.showDirectoryPicker({ id: 'hugeicons', mode: 'read' }).then(
+            function (h) {
+              try {
+                kv('readwrite', function (s) {
+                  return s.put(h, 'folder');
+                }).catch(function () {});
+              } catch (e) {}
+              connect(h);
+            },
+            function (e) {
+              if (e && e.name !== 'AbortError') show("couldn't open that folder");
+            }
+          );
+        }
+
+        pick.addEventListener('click', chooseFolder);
+        folderBtn.addEventListener('click', chooseFolder);
+
+        reopen.addEventListener('click', function () {
+          var h = saved;
+          if (!h) return;
+          h.requestPermission({ mode: 'read' }).then(function (p) {
+            if (p === 'granted') connect(h);
+          });
         });
 
         proInput.addEventListener('change', function () {
-          var all = Array.prototype.slice.call(proInput.files || []).filter(function (f) {
-            return /\.svg$/i.test(f.name);
+          var files = Array.prototype.slice.call(proInput.files || []);
+          proInput.value = '';
+          if (!files.length) return;
+          files.sort(function (a, b) {
+            var x = a.webkitRelativePath;
+            var y = b.webkitRelativePath;
+            return x < y ? -1 : x > y ? 1 : 0;
           });
-          if (!all.length) {
-            show('no .svg files in that folder');
-            return;
-          }
-          // If they picked the parent of all three styles, take only this one.
-          var scoped = all.filter(function (f) {
-            return (f.webkitRelativePath || '').toLowerCase().indexOf(activeStyle) !== -1;
-          });
-          var files = scoped.length ? scoped : all;
-
-          show('reading ' + files.length.toLocaleString() + ' files…');
-          Promise.all(
-            files.map(function (f) {
-              return f.text().then(function (t) {
-                return [
-                  f.name.replace(/\.svg$/i, ''),
-                  // Same normalisation the app does: keep the opacities that
-                  // make a second tone, drop the baked-in colour so the theme
-                  // can drive it. Matching only hex missed Figma's fill="black",
-                  // which then stayed black and vanished on a dark theme.
-                  t.replace(/\b(fill|stroke)\s*=\s*"([^"]*)"/g, function (whole, attr, val) {
-                    var v = val.trim().toLowerCase();
-                    return v === '' ||
-                      v === 'none' ||
-                      v === 'currentcolor' ||
-                      v === 'transparent' ||
-                      v === 'inherit'
-                      ? whole
-                      : attr + '="currentColor"';
-                  }),
-                ];
-              });
-            })
-          ).then(function (pairs) {
-            var lib = {};
-            pairs.forEach(function (p) {
-              lib[p[0]] = p[1];
-            });
-            PRO[activeStyle] = lib;
-            proInput.value = '';
-            applyStyle();
-            show(Object.keys(lib).length.toLocaleString() + ' ' + activeStyle + ' icons loaded');
-          });
+          useFolder((files[0].webkitRelativePath || '').split('/')[0] || 'your folder', scanFiles(files));
         });
+
+        applyStyle();
+
+        // A return visit: if Chrome already allows the folder, open it straight
+        // away; otherwise one click on Reopen asks.
+        try {
+          if (window.showDirectoryPicker && window.indexedDB) {
+            kv('readonly', function (s) {
+              return s.get('folder');
+            })
+              .then(function (h) {
+                if (!h || !h.queryPermission) return;
+                return h.queryPermission({ mode: 'read' }).then(function (p) {
+                  if (p === 'granted') return connect(h);
+                  if (p !== 'prompt' || SRC) return;
+                  saved = h;
+                  reopenName.textContent = h.name;
+                  panel();
+                });
+              })
+              .catch(function () {});
+          }
+        } catch (e) {}
 
         var toastTimer;
         grid.addEventListener('click', function (e) {
           var tile = e.target.closest('.tile');
           if (!tile) return;
-          var snippet =
-            activeStyle === 'stroke'
-              ? 'HugeIcons.' + tile.dataset.sym
-              : activeStyle === 'solid'
-              ? 'HugeIconsSolid.' + tile.dataset.sym
-              : "HugeIconSvg('" +
-                tile.dataset.keb +
-                "', style: HugeIconStyle." +
-                activeStyle +
-                ')';
+          var keb = tile.dataset.keb;
+          var note = '';
+          var snippet;
+          if (activeStyle === 'stroke') {
+            // The app's stroke icons come from the free font, which may not have it.
+            snippet = FREE[keb] ? 'HugeIcons.' + FREE[keb] : keb;
+            if (!FREE[keb]) note = ' — not in the free stroke font';
+          } else if (activeStyle === 'solid') snippet = 'HugeIconsSolid.' + byName[keb].sym;
+          else snippet = "HugeIconSvg('" + keb + "', style: HugeIconStyle." + activeStyle + ')';
 
-          navigator.clipboard.writeText(snippet).then(
-            function () {
-              show(snippet + '  copied');
-            },
-            function () {
-              show(snippet);
-            }
-          );
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(snippet).then(
+              function () {
+                show(snippet + '  copied' + note);
+              },
+              function () {
+                show(snippet + note);
+              }
+            );
+          } else show(snippet + note);
 
           document.querySelectorAll('.tile.hit').forEach(function (t) {
             t.classList.remove('hit');
@@ -1214,18 +1782,18 @@ SvgPicture.asset(
           });
         });
 
-        var root = document.documentElement;
+        var docRoot = document.documentElement;
         try {
-          var saved = localStorage.getItem('hgi-theme');
-          if (saved) root.dataset.theme = saved;
+          var savedTheme = localStorage.getItem('hgi-theme');
+          if (savedTheme) docRoot.dataset.theme = savedTheme;
         } catch (e) {}
         document.getElementById('theme').addEventListener('click', function () {
-          var dark = root.dataset.theme
-            ? root.dataset.theme === 'dark'
+          var dark = docRoot.dataset.theme
+            ? docRoot.dataset.theme === 'dark'
             : matchMedia('(prefers-color-scheme: dark)').matches;
-          root.dataset.theme = dark ? 'light' : 'dark';
+          docRoot.dataset.theme = dark ? 'light' : 'dark';
           try {
-            localStorage.setItem('hgi-theme', root.dataset.theme);
+            localStorage.setItem('hgi-theme', docRoot.dataset.theme);
           } catch (e) {}
         });
 
