@@ -519,10 +519,20 @@
         margin-left: 5px;
       }
 
-      /* A visitor who has brought nothing sees the free set and nothing about Pro:
-         the style tabs and the folder button wait for a key, a folder, or
-         #library in the address. */
-      :root:not(.own) .styles,
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 14px;
+      }
+      .styles[hidden] {
+        display: none;
+      }
+
+      /* A visitor who has brought nothing sees the free sets and nothing about
+         Pro: Hugeicons' style tabs and the folder button wait for a key, a
+         folder, or #library in the address. */
+      :root:not(.own) #styles,
       :root:not(.own) .ask.folder {
         display: none;
       }
@@ -891,9 +901,10 @@
         <div>
           <h1>Hugeicons gallery</h1>
           <p>
-            The free Hugeicons stroke set, with search and categories. Click any icon to copy it
-            the way you work: straight into Figma, as HTML, React, Vue, Laravel, Flutter or React
-            Native code, or as a file. Search matches the icon's name and its code name.
+            Free icons with search and categories: the Hugeicons stroke set, and Solar in six
+            styles, from linear to bold duotone. Click any icon to copy it the way you work:
+            straight into Figma, as HTML, React, Vue, Laravel, Flutter or React Native code, or as
+            a file. Search matches the icon's name and its code name.
           </p>
           <div class="rule">
             <span>arrow-shrink-02</span>
@@ -964,6 +975,12 @@ SvgPicture.asset(
                 <br />
                 Note these four are <strong>Pro</strong>: they belong in your app, not
                 in this repo. Only stroke is free.
+              </li>
+              <li>
+                <strong>Solar icons are SVG too</strong>, and free in every style. Set
+                <em>Copy for</em> to <em>SVG file</em> to download one into
+                <code>assets/icons/solar/bold/</code>, then back on Flutter a click copies the
+                <code>SvgPicture.asset(…)</code> line for it.
               </li>
             </ol>
 
@@ -1230,12 +1247,26 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         <div class="tally" id="tally" hidden></div>
       </div>
 
-      <div class="styles" id="styles" role="group" aria-label="Icon style">
-        <button type="button" data-style="stroke" aria-pressed="true">Stroke</button>
-        <button type="button" data-style="solid">Solid<i>Pro</i></button>
-        <button type="button" data-style="twotone">Twotone<i>Pro</i></button>
-        <button type="button" data-style="duotone">Duotone<i>Pro</i></button>
-        <button type="button" data-style="bulk">Bulk<i>Pro</i></button>
+      <div class="tabs" id="tabs">
+        <div class="styles" id="families" role="group" aria-label="Icon family">
+          <button type="button" data-family="huge" aria-pressed="true">Hugeicons</button>
+          <button type="button" data-family="solar">Solar</button>
+        </div>
+        <div class="styles" id="styles" role="group" aria-label="Hugeicons style">
+          <button type="button" data-style="stroke" aria-pressed="true">Stroke</button>
+          <button type="button" data-style="solid">Solid<i>Pro</i></button>
+          <button type="button" data-style="twotone">Twotone<i>Pro</i></button>
+          <button type="button" data-style="duotone">Duotone<i>Pro</i></button>
+          <button type="button" data-style="bulk">Bulk<i>Pro</i></button>
+        </div>
+        <div class="styles" id="solarStyles" role="group" aria-label="Solar style" hidden>
+          <button type="button" data-style="solar-linear">Linear</button>
+          <button type="button" data-style="solar-outline">Outline</button>
+          <button type="button" data-style="solar-broken">Broken</button>
+          <button type="button" data-style="solar-bold">Bold</button>
+          <button type="button" data-style="solar-line-duotone">Line Duotone</button>
+          <button type="button" data-style="solar-bold-duotone">Bold Duotone</button>
+        </div>
       </div>
 
       <div class="cats" id="cats" role="group" aria-label="Filter by category" hidden></div>
@@ -1317,6 +1348,12 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           (<a href="MIT-Hugeicons.txt">notice</a>); Pro styles stay under your own licence</span
         >
         <span
+          >Solar icons &copy;
+          <a href="https://www.figma.com/community/file/1166831539721848736">480 Design</a>,
+          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+          (<a href="solar/CC-BY-Solar.txt">credit</a>)</span
+        >
+        <span
           ><span id="sourceNote">Read from your disk, never uploaded</span
           ><button type="button" id="forget" hidden>forget key</button></span
         >
@@ -1332,6 +1369,23 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
     <script>
       (function () {
         var STYLES = ['stroke', 'solid', 'twotone', 'duotone', 'bulk'];
+        // A second family, free in every style: Solar, by 480 Design, CC BY 4.0.
+        // Its tabs are 'solar-linear', 'solar-bold' …, beside Hugeicons' five.
+        var SOLAR = ['linear', 'outline', 'broken', 'bold', 'line-duotone', 'bold-duotone'];
+        var ALL = STYLES.concat(
+          SOLAR.map(function (s) {
+            return 'solar-' + s;
+          })
+        );
+
+        function isSolar(style) {
+          return style.indexOf('solar-') === 0;
+        }
+
+        // How a style is called in a sentence: 'stroke', 'Solar line duotone'.
+        function said(style) {
+          return isSolar(style) ? 'Solar ' + style.slice(6).replace('-', ' ') : style;
+        }
 
         var grid = document.getElementById('grid');
         var q = document.getElementById('q');
@@ -1486,6 +1540,8 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
                 a.value = a.value.replace(/url\(\s*(['"]?)#/g, 'url($1#' + pre);
               }
             });
+            // In a mask a colour is how much shows through, not a paint: leave it.
+            if (el.closest('mask')) return;
             ['fill', 'stroke'].forEach(function (p) {
               var s = el.style ? el.style.getPropertyValue(p) : '';
               var t = s && tone(s);
@@ -1647,15 +1703,22 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         var gen = Object.create(null); // style -> bumps when a new folder replaces it
         var activeStyle = 'stroke';
         var activeCat = '';
+        var tabs = document.getElementById('tabs');
+        var solarBar = document.getElementById('solarStyles');
+        var lastHuge = 'stroke'; // the tab each family reopens on
+        var lastSolar = 'solar-linear';
+        // The two sources nobody has to bring: Hugeicons' free Stroke, and Solar.
+        var FREE_SET = 'the free set';
+        var SOLAR_SET = 'Solar';
+        var freeing = false;
+        var freeFailed = false;
+        var solarFailed = Object.create(null);
+        var started = false; // true once a saved key or folder has had its chance
 
         try {
           var lastStyle = localStorage.getItem('hgi-style');
-          if (STYLES.indexOf(lastStyle) !== -1) activeStyle = lastStyle;
+          if (ALL.indexOf(lastStyle) !== -1) activeStyle = lastStyle;
         } catch (e) {}
-        styleBar.querySelectorAll('button').forEach(function (b) {
-          if (b.dataset.style === activeStyle) b.setAttribute('aria-pressed', 'true');
-          else b.removeAttribute('aria-pressed');
-        });
 
         // What the visitor brought themselves — every source but the free set.
         function sources() {
@@ -1685,12 +1748,19 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           document.documentElement.classList.toggle('own', owner());
         }
 
+        // Marks the open tab, and shows the tab bar of the family it belongs to.
         function press(style) {
           activeStyle = style;
-          styleBar.querySelectorAll('button').forEach(function (b) {
-            if (b.dataset.style === style) b.setAttribute('aria-pressed', 'true');
+          var solar = isSolar(style);
+          tabs.querySelectorAll('button').forEach(function (b) {
+            var on = b.dataset.style ? b.dataset.style === style : (b.dataset.family === 'solar') === solar;
+            if (on) b.setAttribute('aria-pressed', 'true');
             else b.removeAttribute('aria-pressed');
           });
+          styleBar.hidden = solar;
+          solarBar.hidden = !solar;
+          if (solar) lastSolar = style;
+          else lastHuge = style;
         }
 
         // The folder button and the footer both say where the icons come from.
@@ -1704,7 +1774,9 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
               : from.length === 1
                 ? from[0]
                 : from.length + ' folders';
-          sourceNote.textContent = !from.length
+          sourceNote.textContent = isSolar(activeStyle)
+            ? 'Solar, free for everyone'
+            : !from.length
             ? 'The free Stroke set, from Hugeicons'
             : from.indexOf(ONLINE) === -1
               ? 'Read from your disk, never uploaded'
@@ -1714,7 +1786,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         // Each pick adds the styles it holds and leaves the rest alone, so the
         // five style folders can be picked one by one — or their parent once.
         function addFolder(name, found) {
-          var got = STYLES.filter(function (s) {
+          var got = ALL.filter(function (s) {
             return found[s];
           });
           if (!got.length) {
@@ -1732,11 +1804,11 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           renameAll();
           credit();
 
-          // The free set arrives unasked, so it says nothing. For the rest: the
+          // The free sets arrive unasked, so they say nothing. For the rest: the
           // dialog reopens inside the last folder picked, so picking Stroke twice
           // is easy to do and looks like nothing happened. Say what's missing.
-          if (name !== FREE_SET) {
-            if (SRC[activeStyle]) show(name + ': ' + got.join(', '));
+          if (name !== FREE_SET && name !== SOLAR_SET) {
+            if (SRC[activeStyle] || isSolar(activeStyle)) show(name + ': ' + got.join(', '));
             else {
               show(
                 name + ' only has ' + got.join(', ') + ' icons — for ' + activeStyle +
@@ -1753,7 +1825,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         // folder brings new names, since an Alt suffix can move.
         function renameAll() {
           var names = Object.create(null);
-          STYLES.forEach(function (s) {
+          ALL.forEach(function (s) {
             (SRC[s] ? SRC[s].list : []).forEach(function (it) {
               if (!JUNK.test(it.stem)) names[kebab(it.stem)] = true;
             });
@@ -1762,7 +1834,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           rows = [];
           byName = Object.create(null);
           grid.textContent = '';
-          STYLES.forEach(function (s) {
+          ALL.forEach(function (s) {
             for (var k in LIB[s]) rowFor(k);
           });
           placeRows();
@@ -1797,7 +1869,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
               delete reading[style];
               delete bundles[style];
               if (style === activeStyle) applyStyle();
-              show("couldn't read the " + style + ' icons — click the tab to try again', 6000);
+              show("couldn't read the " + said(style) + ' icons — click the tab to try again', 6000);
               return;
             }
             var lib = Object.create(null);
@@ -1828,20 +1900,21 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
             var gaps = STYLES.filter(function (s) {
               return !SRC[s];
             }).length;
+            var theirs = src.from !== FREE_SET && src.from !== SOLAR_SET;
             show(
               n.toLocaleString() +
                 ' ' +
-                style +
+                said(style) +
                 ' icons' +
-                (src.from === FREE_SET
-                  ? owner()
+                (!theirs
+                  ? src.from === FREE_SET && owner()
                     ? ' · the free set — the other four styles are Pro'
                     : ''
                   : gaps
                   ? ' · for every tab, drag in the folder that holds all five'
                   : (skipped ? ' · ' + skipped + ' non-icon files skipped' : '') +
                     (folded ? ' · ' + folded + ' duplicate names' : '')),
-              gaps ? 6000 : 0
+              theirs && gaps ? 6000 : 0
             );
           });
         }
@@ -1939,15 +2012,17 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         }
 
         function panel() {
-          var name = title(activeStyle);
+          var name = title(said(activeStyle));
           var busy = opening || !!reading[activeStyle];
-          var mine = owner();
+          var solar = isSolar(activeStyle);
+          var mine = owner() && !solar;
           document.getElementById('loadFine').hidden = !mine;
           if (!mine) {
-            // Nothing here is the visitor's to set up: the free set is on its way.
+            // Nothing here is the visitor's to set up: a free set is on its way.
+            var failed = solar ? solarFailed[activeStyle] : freeFailed;
             pick.hidden = reopen.hidden = useKey.hidden = keyForm.hidden = keyNote.hidden = true;
-            loadTitle.textContent = freeFailed ? "Couldn't load the icons" : 'Loading the icons…';
-            loadText.textContent = freeFailed
+            loadTitle.textContent = failed ? "Couldn't load the icons" : 'Loading the icons…';
+            loadText.textContent = failed
               ? 'Check your connection, then reload the page.'
               : reading[activeStyle] || '';
             return;
@@ -2057,7 +2132,7 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           var total = TOTAL[activeStyle] || 0;
           tally.innerHTML =
             n === total
-              ? '<b>' + total.toLocaleString() + '</b> ' + activeStyle + ' icons'
+              ? '<b>' + total.toLocaleString() + '</b> ' + said(activeStyle) + ' icons'
               : '<b>' + n.toLocaleString() + '</b> of ' + total.toLocaleString();
         }
 
@@ -2088,18 +2163,30 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
           empty.hidden = n !== 0;
         }
 
-        styleBar.addEventListener('click', function (e) {
+        function choose(style) {
+          press(style);
+          try {
+            localStorage.setItem('hgi-style', style);
+          } catch (e) {}
+          credit();
+          open(style);
+        }
+
+        // The free sets arrive on demand: Hugeicons' Stroke once it is clear the
+        // visitor has none of their own, a Solar style the first time it's opened.
+        function open(style) {
+          if (!SRC[style] && isSolar(style)) fetchSolar(style);
+          else if (!SRC[style] && style === 'stroke' && started) freeStroke();
+          else loadStyle(style);
+        }
+
+        // A tab opens its style; a family button reopens that family's last tab.
+        tabs.addEventListener('click', function (e) {
           var b = e.target.closest('button');
           if (!b) return;
-          styleBar.querySelectorAll('button').forEach(function (o) {
-            o.removeAttribute('aria-pressed');
-          });
-          b.setAttribute('aria-pressed', 'true');
-          activeStyle = b.dataset.style;
-          try {
-            localStorage.setItem('hgi-style', activeStyle);
-          } catch (e) {}
-          loadStyle(activeStyle);
+          if (b.dataset.style) choose(b.dataset.style);
+          else if (b.dataset.family === 'solar') choose(lastSolar);
+          else choose(owner() || lastHuge === 'stroke' ? lastHuge : 'stroke');
         });
 
         // --- Picking, and remembering, the folder ---------------------------------
@@ -2431,7 +2518,10 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         opening = !!savedKey();
         forget.hidden = !opening;
         mode();
+        press(activeStyle);
         applyStyle();
+        // Solar needs nothing from the visitor, so it needn't wait for the rest.
+        if (isSolar(activeStyle)) open(activeStyle);
 
         // A return visit. With a key saved, the online library opens by itself.
         // After it, the folders Chrome still allows open straight away, and the
@@ -2493,11 +2583,40 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         // free-stroke.json is tools/free_icons.py's build of Hugeicons' own npm
         // package. It fills the Stroke tab once it's clear the visitor has brought no
         // Stroke of their own, and steps aside the moment they do.
-        var FREE_SET = 'the free set';
-        var freeFailed = false;
+        // Solar is one file per style, fetched when that tab is first opened.
+        function fetchSolar(style) {
+          if (reading[style]) return;
+          delete solarFailed[style];
+          reading[style] = 'Downloading…';
+          if (style === activeStyle) applyStyle();
+          fetch('solar/' + style.slice(6) + '.json')
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.json();
+            })
+            .then(function (all) {
+              var found = Object.create(null);
+              found[style] = Object.keys(all).map(function (name) {
+                return {
+                  stem: name,
+                  read: function () {
+                    return Promise.resolve(all[name]);
+                  },
+                };
+              });
+              addFolder(SOLAR_SET, found);
+            })
+            .catch(function () {
+              delete reading[style];
+              solarFailed[style] = true;
+              if (style === activeStyle) applyStyle();
+            });
+        }
 
         function freeStroke() {
-          if (SRC.stroke) return;
+          if (SRC.stroke || freeing) return;
+          freeing = true;
+          freeFailed = false;
           fetch('free-stroke.json')
             .then(function (r) {
               if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -2517,16 +2636,19 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
               addFolder(FREE_SET, found);
             })
             .catch(function () {
+              freeing = false;
               freeFailed = true;
               if (!LIB[activeStyle]) applyStyle();
             });
         }
         settled.then(function () {
+          started = true;
           mode();
-          // With nothing of their own, the free set is all there is to look at —
-          // whatever tab this browser was on last time.
-          if (!owner() && activeStyle !== 'stroke') press('stroke');
-          freeStroke();
+          // With nothing of their own a visitor has no Pro tab to be on, whatever
+          // tab this browser was on last time.
+          if (!owner() && STYLES.indexOf(activeStyle) > 0) press('stroke');
+          credit();
+          open(activeStyle);
         });
 
         // #library is the way in on a browser that has no key or folder yet.
@@ -2610,6 +2732,8 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         }
 
         function recolored(src) {
+          // Already themeable: its other colours are a mask's, not ink.
+          if (/currentColor/i.test(src)) return src;
           var seen = Object.create(null);
           src.replace(PAINT, function (all, prop, value) {
             var h = hue(value);
@@ -2682,6 +2806,12 @@ res.send(`&lt;button&gt;${callRinging01Icon} Call&lt;/button&gt;`);  // in Expre
         }
 
         function flutterCode(r) {
+          if (isSolar(activeStyle)) {
+            // Not a Hugeicons glyph: an SVG asset, saved from "SVG file".
+            var asset =
+              "SvgPicture.asset('assets/icons/solar/" + activeStyle.slice(6) + '/' + r.keb + ".svg')";
+            return { text: asset, said: asset + '  copied' };
+          }
           if (activeStyle === 'stroke') {
             // The app's stroke icons come from the free font, which may not have it.
             return FREE[r.keb]

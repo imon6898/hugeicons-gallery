@@ -5,8 +5,13 @@ React, Vue, Laravel, Flutter or React Native code, or as a file.
 
 **→ [imon6898.github.io/hugeicons-gallery](https://imon6898.github.io/hugeicons-gallery/)**
 
-Open it and the free **Stroke** set is there: 6,039 icons, MIT, nothing to set up. That is all a
-visitor sees — no Pro tabs, and nothing to choose.
+Open it and two free families are there, with nothing to set up:
+
+- **Hugeicons** — the free Stroke set, 6,039 icons, MIT.
+- **Solar** — 1,509 icons in six styles: Linear, Outline, Broken, Bold, Line Duotone and Bold
+  Duotone. By 480 Design, CC BY 4.0.
+
+That is all a visitor sees — no Pro tabs, and nothing to choose.
 
 Solid, Twotone, Duotone and Bulk are Pro. They can't be redistributed, so nothing Pro is in this
 repo; the page reads those from your own download instead: a
@@ -31,7 +36,7 @@ matching instructions under the title.
 | Vue / Nuxt | a single-file component |
 | Laravel Blade | a Blade component, for `<x-icon.call-ringing-01 />` |
 | JavaScript / Node.js | ``export const callRinging01Icon = `<svg…>` `` |
-| Flutter | `HugeIcons.callRinging01`, or `HugeIconSvg(…)` for a multi-tone style |
+| Flutter | `HugeIcons.callRinging01`, `HugeIconSvg(…)` for a multi-tone style, or `SvgPicture.asset(…)` for Solar |
 | React Native | a `react-native-svg` component |
 | Icon name | `call-ringing-01` |
 
@@ -180,6 +185,7 @@ curl -sSL -o hgi-stroke-rounded.ttf https://use.hugeicons.com/font/hgi-stroke-ro
 python3 tools/generate.py icons.css
 python3 tools/categorize.py
 python3 tools/free_icons.py
+python3 tools/solar_icons.py
 ```
 
 `generate.py` rewrites `icons.js` and `app_icons.dart`; `categorize.py` tags `icons.js` with
@@ -192,9 +198,20 @@ Hugeicons' own MIT package on npm, `@hugeicons/core-free-icons`. npm spells some
 (`TwentyFourHoursClockIcon` for `24-hours-clock`), so each icon takes the font's name where one
 matches; 6,022 of the 6,039 do, and those are the ones `HugeIcons.x` exists for.
 
+`solar_icons.py` rebuilds `solar/`, one file per style, from Iconify's package
+`@iconify-json/solar`. Hugeicons gives away one style and sells four; Solar is free in all six of
+its own, which is why it is here: it gives a visitor the solid and duotone looks that Hugeicons
+keeps for Pro.
+
 ## Licence
 
 The free stroke-rounded icons are © Hugeicons, MIT — see [`MIT-Hugeicons.txt`](MIT-Hugeicons.txt),
 which must stay with the font and with `free-stroke.json` in anything you redistribute. The Pro
 styles stay under your own Hugeicons licence; they're read from your disk or your private library
-and never stored here. Inter is SIL OFL 1.1. The gallery page itself is MIT.
+and never stored here.
+
+The Solar icons are © [480 Design](https://www.figma.com/community/file/1166831539721848736),
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — keep
+[`solar/CC-BY-Solar.txt`](solar/CC-BY-Solar.txt) with them and the credit in the page's footer.
+
+Inter is SIL OFL 1.1. The gallery page itself is MIT.

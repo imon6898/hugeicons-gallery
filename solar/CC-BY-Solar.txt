@@ -1,0 +1,9 @@
+Solar Icons Set
+by 480 Design — https://www.figma.com/community/file/1166831539721848736
+
+Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+
+The files in this folder come from Iconify's data package, @iconify-json/solar
+1.2.13, which optimised the artwork and set its colours to currentColor.
+tools/solar_icons.py split them into one file per style.
