@@ -1,5 +1,6 @@
-# Your Hugeicons download. The Pro styles can't be published online, and the
-# gallery reads them from disk anyway, so the folder never goes into the repo.
-
+# Your Hugeicons download. The Pro styles can't be published online, so the
+# folder never goes into this repo — the gallery reads it from disk, or from the
+# private online library that tools/bundle_library.py packs it into.
+hugeicons-svg-library/
 
 .DS_Store

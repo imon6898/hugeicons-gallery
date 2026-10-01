@@ -7,7 +7,9 @@ icon.
 **→ [imon6898.github.io/hugeicons-gallery](https://imon6898.github.io/hugeicons-gallery/)**
 
 No icons live on the page itself. The Pro styles can't be redistributed, so the page reads them
-from your disk instead, in the browser — nothing is uploaded, and nothing Pro is in this repo.
+from your disk instead, in the browser — nothing is uploaded, and nothing Pro is in this repo. To
+use it without the folder, keep the icons in a [private online library](#a-private-online-library)
+and open that with a key.
 
 ## Pointing it at your folder
 
@@ -30,6 +32,24 @@ folder can sit a level or two down, as it does in Hugeicons' own download.
 Dragging is the surer way in. Chrome's folder window reopens inside whatever you picked last, so
 after picking `Stroke` it opens *inside* `Stroke`, where pressing Select just picks `Stroke` again —
 go up a level first. A drop can't land one level off. (Dropping needs Chrome or Edge.)
+
+## A private online library
+
+A folder only works on the machine it sits on. To open the gallery anywhere, with nothing to pick,
+keep the icons in a **private** GitHub repo and give the page a read-only key:
+
+```bash
+python3 tools/bundle_library.py --library hugeicons-svg-library --out ../hugeicons-library
+```
+
+That packs each style into one gzipped JSON file. `../hugeicons-library` is a clone of the private
+repo — commit and push it there. On the page, **Use online library** takes the key: a fine-grained
+GitHub token with access to that one repository and Contents on read-only (the **Make a key** link
+fills in the rest). The key stays in the browser's storage and goes only to GitHub; every later
+visit opens the library by itself, and **forget key** in the footer removes it.
+
+The repo has to stay private: without the key GitHub answers "not found", which is the point. The
+page looks for `imon6898/hugeicons-library` — change `LIBRARY` in `index.html` to use your own.
 
 The export carries some leftovers, which the page tidies as it reads:
 

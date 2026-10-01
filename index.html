@@ -547,11 +547,39 @@
         opacity: 0;
         pointer-events: none;
       }
+      .loadpro form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 12px;
+      }
+      .loadpro form[hidden] {
+        display: none;
+      }
+      .loadpro input {
+        flex: 0 1 36ch;
+        min-width: 0;
+        padding: 9px 12px;
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--ink);
+        background: var(--ground);
+        border: 1px solid var(--hairline);
+        border-radius: 9px;
+      }
+      .loadpro input:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
       .loadpro small {
         display: block;
         margin-top: 14px;
         font-size: 12px;
         color: var(--ink-faint);
+      }
+      .loadpro small[hidden] {
+        display: none;
       }
 
       /* Shown while a folder is dragged over the page */
@@ -759,6 +787,19 @@
         font-size: 12.5px;
         color: var(--ink-faint);
       }
+      footer button {
+        margin-left: 8px;
+        padding: 0;
+        font: inherit;
+        color: var(--accent);
+        text-decoration: underline;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+      footer button[hidden] {
+        display: none;
+      }
 
       /* Toast */
       .toast {
@@ -927,14 +968,35 @@ SvgPicture.asset(
           <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> onto this page — the
           folder they all sit in, not one of the five — and every tab fills at once. Or pick it
           with the button. The icons aren't in this repo, since the Pro styles can't be
-          redistributed, so the page reads them straight from your disk.
+          redistributed, so the page reads them straight from your disk — or, with a key, from
+          your own private online library, where no folder is needed.
         </p>
         <div class="acts">
           <button type="button" id="pick">Choose folder</button>
           <button type="button" class="quiet" id="reopen" hidden>
             Reopen <span id="reopenName"></span>
           </button>
+          <button type="button" class="quiet" id="useKey" hidden>Use online library</button>
         </div>
+        <form id="keyForm" hidden>
+          <input
+            id="keyInput"
+            type="password"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Paste your library key"
+            aria-label="Library key"
+          />
+          <button type="submit">Connect</button>
+        </form>
+        <small id="keyNote" hidden
+          >The key opens your private icon library on GitHub, so every tab fills with no folder.
+          It stays in this browser and is sent only to GitHub.
+          <a id="keyLink" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener"
+            >Make a key</a
+          >
+          — give it only the library repository, and leave Contents on read-only.</small
+        >
         <small
           >Your files never leave this machine — the page reads them locally and uploads nothing.
           Chrome and Edge remember your folders; other browsers ask again each visit.</small
@@ -975,7 +1037,10 @@ SvgPicture.asset(
           >Icons &copy; Hugeicons — the free stroke-rounded set is MIT
           (<a href="MIT-Hugeicons.txt">notice</a>); Pro styles stay under your own licence</span
         >
-        <span>Read from your disk, never uploaded</span>
+        <span
+          ><span id="sourceNote">Read from your disk, never uploaded</span
+          ><button type="button" id="forget" hidden>forget key</button></span
+        >
         <span><a href="https://github.com/imon6898/hugeicons-gallery">Source</a></span>
       </footer>
     </div>
@@ -1006,6 +1071,12 @@ SvgPicture.asset(
         var proInput = document.getElementById('proInput');
         var folderBtn = document.getElementById('folder');
         var folderName = document.getElementById('folderName');
+        var useKey = document.getElementById('useKey');
+        var keyForm = document.getElementById('keyForm');
+        var keyInput = document.getElementById('keyInput');
+        var keyNote = document.getElementById('keyNote');
+        var sourceNote = document.getElementById('sourceNote');
+        var forget = document.getElementById('forget');
         var intro = loadText.innerHTML;
 
         function camel(kebab) {
@@ -1332,6 +1403,10 @@ SvgPicture.asset(
             if (SRC[s] && from.indexOf(SRC[s].from) === -1) from.push(SRC[s].from);
           });
           folderName.textContent = from.length === 1 ? from[0] : from.length + ' folders';
+          sourceNote.textContent =
+            from.indexOf(ONLINE) === -1
+              ? 'Read from your disk, never uploaded'
+              : 'Read from your private library' + (from.length > 1 ? ' and your disk' : '');
           // The dialog reopens inside the last folder picked, so picking Stroke
           // twice is easy to do and looks like nothing happened. Say what's missing.
           if (SRC[activeStyle]) show(name + ': ' + got.join(', '));
@@ -1383,6 +1458,20 @@ SvgPicture.asset(
             if (style === activeStyle) loadText.textContent = reading[style];
           }).then(function (texts) {
             if (mine !== gen[style]) return;
+            // Nothing at all came through — a dropped connection, or a folder that
+            // has gone. Leave the tab unread, so clicking it tries again.
+            if (
+              list.length &&
+              texts.every(function (t) {
+                return t === null;
+              })
+            ) {
+              delete reading[style];
+              delete bundles[style];
+              if (style === activeStyle) applyStyle();
+              show("couldn't read the " + style + ' icons — click the tab to try again', 6000);
+              return;
+            }
             var lib = Object.create(null);
             var n = 0;
             var skipped = 0;
@@ -1498,11 +1587,24 @@ SvgPicture.asset(
 
         function panel() {
           var name = title(activeStyle);
-          if (reading[activeStyle]) {
+          var busy = opening || !!reading[activeStyle];
+          pick.hidden = busy;
+          reopen.hidden = busy || !waiting.length;
+          useKey.hidden = busy || online;
+          if (busy || online) keyForm.hidden = keyNote.hidden = true;
+          if (opening) {
+            loadTitle.textContent = 'Opening your online library…';
+            loadText.textContent = 'Fetching the list of icons from GitHub.';
+          } else if (reading[activeStyle]) {
             loadTitle.textContent = 'Reading ' + name + '…';
             loadText.textContent = reading[activeStyle];
-            pick.hidden = true;
-            reopen.hidden = true;
+          } else if (SRC[activeStyle]) {
+            // Every read failed: a dropped connection, or a folder that has gone.
+            loadTitle.textContent = "Couldn't read " + name;
+            loadText.textContent =
+              'Nothing came through from ' + SRC[activeStyle].from + '. Check your ' +
+              'connection, or that the folder is still there, then click the ' + name +
+              ' tab to try again.';
           } else if (Object.keys(SRC).length) {
             var from = [];
             STYLES.forEach(function (s) {
@@ -1515,13 +1617,9 @@ SvgPicture.asset(
               'page to fill every tab, or drag just the ' + name + ' folder. Choose folder ' +
               'works too — if its window opens inside one of the style folders, go up a ' +
               'level first (⌘↑ on a Mac).';
-            pick.hidden = false;
-            reopen.hidden = !waiting.length;
           } else {
             loadTitle.textContent = 'Point this at your Hugeicons folder';
             loadText.innerHTML = intro;
-            pick.hidden = false;
-            reopen.hidden = !waiting.length;
           }
         }
 
@@ -1832,16 +1930,159 @@ SvgPicture.asset(
           });
         });
 
+        // --- The online library ----------------------------------------------------
+        // The Pro styles can't sit on a public page, but they can sit in a private
+        // GitHub repo that only its owner's key can read: one gzipped JSON bundle
+        // per style (tools/bundle_library.py), fetched through GitHub's API, which
+        // answers cross-origin requests. Without the key there is nothing to fetch.
+        var LIBRARY = 'imon6898/hugeicons-library';
+        var ONLINE = 'online library'; // what the folder button calls it
+        var bundles = Object.create(null); // style -> promise of { file stem: svg text }
+        var online = false;
+        var opening = false;
+
+        function savedKey() {
+          try {
+            return localStorage.getItem('hgi-key') || '';
+          } catch (e) {
+            return '';
+          }
+        }
+
+        function dropKey() {
+          try {
+            localStorage.removeItem('hgi-key');
+          } catch (e) {}
+          forget.hidden = true;
+        }
+
+        function libraryFile(name, key) {
+          if (!window.DecompressionStream) {
+            var old = new Error('no DecompressionStream');
+            old.old = true;
+            return Promise.reject(old);
+          }
+          return fetch(
+            'https://api.github.com/repos/' + LIBRARY + '/contents/' + name + '.json.gz',
+            { headers: { Authorization: 'Bearer ' + key, Accept: 'application/vnd.github.raw+json' } }
+          ).then(function (r) {
+            if (!r.ok) {
+              var e = new Error('GitHub answered ' + r.status);
+              e.status = r.status;
+              throw e;
+            }
+            // The API sends a file exactly as stored, so the bundles are gzipped by hand.
+            return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();
+          });
+        }
+
+        function libraryTrouble(err) {
+          if (err && err.old) return 'this browser is too old for the online library';
+          if (err && err.status === 401) return "GitHub didn't accept that key — it may have expired";
+          if (err && (err.status === 403 || err.status === 404)) {
+            return "that key can't read " + LIBRARY + ' — it needs Contents: read-only there';
+          }
+          return "couldn't reach the online library — check your connection";
+        }
+
+        function connectLibrary(key) {
+          bundles = Object.create(null);
+          return libraryFile('index', key).then(function (index) {
+            var found = Object.create(null);
+            STYLES.forEach(function (s) {
+              var stems = index.styles && index.styles[s];
+              if (!stems || !stems.length) return;
+              found[s] = stems.map(function (stem) {
+                return {
+                  stem: stem,
+                  read: function () {
+                    // One download per style, shared by every icon in it.
+                    if (!bundles[s]) bundles[s] = libraryFile(s, key);
+                    return bundles[s].then(function (all) {
+                      if (typeof all[stem] !== 'string') throw new Error('not in the bundle');
+                      return all[stem];
+                    });
+                  },
+                };
+              });
+            });
+            if (!Object.keys(found).length) throw new Error('the library is empty');
+            opening = false;
+            online = true;
+            addFolder(ONLINE, found);
+          });
+        }
+
+        // GitHub's token form, with everything but the repository already filled in.
+        document.getElementById('keyLink').href =
+          'https://github.com/settings/personal-access-tokens/new?name=Hugeicons+gallery' +
+          '&description=' + encodeURIComponent('Read-only key for ' + LIBRARY) +
+          '&target_name=' + encodeURIComponent(LIBRARY.split('/')[0]) +
+          '&expires_in=none&contents=read';
+
+        useKey.addEventListener('click', function () {
+          keyForm.hidden = keyNote.hidden = !keyForm.hidden;
+          if (!keyForm.hidden) keyInput.focus();
+        });
+
+        keyForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var key = keyInput.value.trim();
+          if (!key) return;
+          show('opening your online library…');
+          connectLibrary(key).then(
+            function () {
+              keyInput.value = '';
+              try {
+                localStorage.setItem('hgi-key', key);
+              } catch (e) {}
+              forget.hidden = !savedKey();
+              // The library takes over from whatever folders were remembered.
+              picks = [];
+              waiting = [];
+              try {
+                kv('readwrite', function (s) {
+                  s.delete('folder');
+                  return s.put(picks, 'folders');
+                }).catch(function () {});
+              } catch (e) {}
+            },
+            function (err) {
+              show(libraryTrouble(err), 7000);
+            }
+          );
+        });
+
+        forget.addEventListener('click', function () {
+          dropKey();
+          location.reload();
+        });
+
+        opening = !!savedKey();
+        forget.hidden = !opening;
         applyStyle();
 
-        // A return visit: folders Chrome still allows open straight away; the
+        // A return visit. With a key saved, the online library opens by itself.
+        // After it, the folders Chrome still allows open straight away, and the
         // rest wait for a click on Reopen. ('folder' is the one-folder record
         // an earlier version of this page kept.)
+        var returning = !opening
+          ? Promise.resolve()
+          : connectLibrary(savedKey()).catch(function (err) {
+              opening = false;
+              // A key GitHub refuses is dead; one it couldn't be asked about isn't.
+              if (err && err.status === 401) dropKey();
+              applyStyle();
+              show(libraryTrouble(err), 7000);
+            });
         try {
           if (window.showDirectoryPicker && window.indexedDB) {
-            kv('readonly', function (s) {
-              return s.get('folders');
-            })
+            returning
+              .then(function () {
+                return kv('readonly', function (s) {
+                  return s.get('folders');
+                });
+              })
               .then(function (list) {
                 if (list && list.length) return list;
                 return kv('readonly', function (s) {
