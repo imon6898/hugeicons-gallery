@@ -906,9 +906,9 @@ SvgPicture.asset(
         <h2 id="loadTitle">Point this at your Hugeicons folder</h2>
         <p id="loadText">
           Pick the folder that holds <code>Stroke</code>, <code>Solid</code>,
-          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> — one pick fills every
-          tab. The icons aren't in this repo, since the Pro styles can't be redistributed, so the
-          page reads them straight from your disk.
+          <code>Twotone</code>, <code>Duotone</code> and <code>Bulk</code> to fill every tab at
+          once, or add the style folders one at a time. The icons aren't in this repo, since the Pro
+          styles can't be redistributed, so the page reads them straight from your disk.
         </p>
         <div class="acts">
           <button type="button" id="pick">Choose folder</button>
@@ -918,7 +918,7 @@ SvgPicture.asset(
         </div>
         <small
           >Your files never leave this machine — the page reads them locally and uploads nothing.
-          Chrome and Edge remember the folder; other browsers ask again each visit.</small
+          Chrome and Edge remember your folders; other browsers ask again each visit.</small
         >
       </section>
 
@@ -1164,8 +1164,8 @@ SvgPicture.asset(
         }
 
         // A folder with no style in its name is whichever tab asked for it.
-        function settle(found, loose) {
-          if (!Object.keys(found).length && loose.length) found[activeStyle] = loose;
+        function settle(found, loose, fallback) {
+          if (!Object.keys(found).length && loose.length) found[fallback || activeStyle] = loose;
           return found;
         }
 
@@ -1181,7 +1181,7 @@ SvgPicture.asset(
         // so walk a little way rather than demand one exact layout. The first
         // folder to claim a style keeps it — 'stroke-rounded' and
         // 'stroke-sharp' must not end up mixed into one tab.
-        function scanHandle(dir) {
+        function scanHandle(dir, fallback) {
           var found = Object.create(null);
           var owner = Object.create(null);
           var loose = [];
@@ -1223,7 +1223,7 @@ SvgPicture.asset(
           var own = styleOf(dir.name);
           if (own) owner[own] = dir.name;
           return walk(dir, dir.name, 0, own).then(function () {
-            return settle(found, loose);
+            return settle(found, loose, fallback);
           });
         }
 
@@ -1288,13 +1288,12 @@ SvgPicture.asset(
           });
         }
 
-        var SRC = null; // style -> [{ stem, read }] for the connected folder
+        var SRC = Object.create(null); // style -> { list: [{ stem, read }], from: folder name }
         var LIB = Object.create(null); // style -> kebab name -> { file, text }
         var ART = Object.create(null); // style -> kebab name -> cleaned markup
         var TOTAL = Object.create(null);
         var reading = Object.create(null); // style -> progress line while reading
-        var root = '';
-        var token = 0;
+        var gen = Object.create(null); // style -> bumps when a new folder replaces it
         var activeStyle = 'stroke';
         var activeCat = '';
 
@@ -1307,53 +1306,73 @@ SvgPicture.asset(
           else b.removeAttribute('aria-pressed');
         });
 
-        function useFolder(name, found) {
-          token++;
-          SRC = found;
-          root = name;
-          LIB = Object.create(null);
-          ART = Object.create(null);
-          TOTAL = Object.create(null);
-          reading = Object.create(null);
-          rows = [];
-          byName = Object.create(null);
-          grid.textContent = '';
+        // Each pick adds the styles it holds and leaves the rest alone, so the
+        // five style folders can be picked one by one — or their parent once.
+        function addFolder(name, found) {
+          var got = STYLES.filter(function (s) {
+            return found[s];
+          });
+          if (!got.length) {
+            show('no icons in ' + name);
+            return;
+          }
+          got.forEach(function (s) {
+            SRC[s] = { list: found[s], from: name };
+            gen[s] = (gen[s] || 0) + 1;
+            delete LIB[s];
+            delete ART[s];
+            delete TOTAL[s];
+            delete reading[s];
+          });
+          renameAll();
 
-          // Every name up front and in order, so a clash always settles the
-          // same way no matter which tab gets read first.
+          var from = [];
+          STYLES.forEach(function (s) {
+            if (SRC[s] && from.indexOf(SRC[s].from) === -1) from.push(SRC[s].from);
+          });
+          folderName.textContent = from.length === 1 ? from[0] : from.length + ' folders';
+          show(name + ': ' + got.join(', '));
+          loadStyle(activeStyle);
+        }
+
+        // Every name up front and in order, so a clash always settles the same
+        // way no matter which tab gets read first — and redone whenever a
+        // folder brings new names, since an Alt suffix can move.
+        function renameAll() {
           var names = Object.create(null);
           STYLES.forEach(function (s) {
-            (found[s] || []).forEach(function (it) {
+            (SRC[s] ? SRC[s].list : []).forEach(function (it) {
               if (!JUNK.test(it.stem)) names[kebab(it.stem)] = true;
             });
           });
           nameSymbols(Object.keys(names).filter(Boolean).sort());
-
-          folderName.textContent = name;
-          var got = STYLES.filter(function (s) {
-            return found[s];
+          rows = [];
+          byName = Object.create(null);
+          grid.textContent = '';
+          STYLES.forEach(function (s) {
+            for (var k in LIB[s]) rowFor(k);
           });
-          show(got.length ? name + ': ' + got.join(', ') : 'no icon folders in ' + name);
-          loadStyle(activeStyle);
+          placeRows();
         }
 
         function loadStyle(style) {
-          var list = SRC && SRC[style];
-          if (!list || LIB[style] || reading[style]) {
+          var src = SRC[style];
+          if (!src || LIB[style] || reading[style]) {
             if (style === activeStyle) applyStyle();
             return;
           }
-          var mine = token;
+          var list = src.list;
+          var mine = gen[style];
           var of = ' of ' + list.length.toLocaleString() + ' files';
           reading[style] = '0' + of;
           if (style === activeStyle) applyStyle();
 
           readAll(list, function (done) {
-            if (mine !== token) return;
+            if (mine !== gen[style]) return;
             reading[style] = done.toLocaleString() + of;
             if (style === activeStyle) loadText.textContent = reading[style];
           }).then(function (texts) {
-            if (mine !== token) return;
+            if (mine !== gen[style]) return;
             var lib = Object.create(null);
             var n = 0;
             var skipped = 0;
@@ -1468,17 +1487,18 @@ SvgPicture.asset(
             loadText.textContent = reading[activeStyle];
             pick.hidden = true;
             reopen.hidden = true;
-          } else if (SRC) {
-            loadTitle.textContent = 'No ' + name + ' folder in ' + root;
+          } else if (Object.keys(SRC).length) {
+            loadTitle.textContent = 'Add your ' + name + ' folder';
             loadText.textContent =
-              'Choose a folder that has one, or the ' + name + ' folder itself.';
+              'Choose the ' + name + ' folder — the tabs you already have stay put — or the ' +
+              'folder that holds all five styles to fill every tab at once.';
             pick.hidden = false;
-            reopen.hidden = true;
+            reopen.hidden = !waiting.length;
           } else {
             loadTitle.textContent = 'Point this at your Hugeicons folder';
             loadText.innerHTML = intro;
             pick.hidden = false;
-            reopen.hidden = !saved;
+            reopen.hidden = !waiting.length;
           }
         }
 
@@ -1604,7 +1624,8 @@ SvgPicture.asset(
         // --- Picking, and remembering, the folder ---------------------------------
         // Chrome and Edge can hand the same folder back on the next visit; the
         // rest only have <input webkitdirectory>, which asks every time.
-        var saved = null; // a remembered folder still waiting for permission
+        var picks = []; // what to remember: [{ handle, styles }]
+        var waiting = []; // remembered folders still waiting for permission
 
         function kv(mode, fn) {
           return new Promise(function (resolve, reject) {
@@ -1639,18 +1660,48 @@ SvgPicture.asset(
           });
         }
 
-        function connect(h) {
-          saved = null;
-          reopen.hidden = true;
+        // `only` limits a remembered folder to the styles it was picked for;
+        // `save` remembers a fresh pick.
+        function connect(h, only, save) {
           show('looking through ' + h.name + '…');
-          return scanHandle(h).then(
+          return scanHandle(h, only && only[0]).then(
             function (found) {
-              useFolder(h.name, found);
+              if (only) {
+                Object.keys(found).forEach(function (s) {
+                  if (only.indexOf(s) === -1) delete found[s];
+                });
+              }
+              if (save) remember(h, Object.keys(found));
+              addFolder(h.name, found);
             },
             function () {
               show("couldn't read " + h.name);
             }
           );
+        }
+
+        // A newer pick takes over the styles it holds; a remembered folder
+        // with no styles left is forgotten.
+        function remember(h, styles) {
+          if (!styles.length) return;
+          picks = picks
+            .map(function (p) {
+              return {
+                handle: p.handle,
+                styles: p.styles.filter(function (s) {
+                  return styles.indexOf(s) === -1;
+                }),
+              };
+            })
+            .filter(function (p) {
+              return p.styles.length;
+            });
+          picks.push({ handle: h, styles: styles });
+          try {
+            kv('readwrite', function (s) {
+              return s.put(picks, 'folders');
+            }).catch(function () {});
+          } catch (e) {}
         }
 
         function chooseFolder() {
@@ -1660,12 +1711,7 @@ SvgPicture.asset(
           }
           window.showDirectoryPicker({ id: 'hugeicons', mode: 'read' }).then(
             function (h) {
-              try {
-                kv('readwrite', function (s) {
-                  return s.put(h, 'folder');
-                }).catch(function () {});
-              } catch (e) {}
-              connect(h);
+              connect(h, null, true);
             },
             function (e) {
               if (e && e.name !== 'AbortError') show("couldn't open that folder");
@@ -1676,11 +1722,20 @@ SvgPicture.asset(
         pick.addEventListener('click', chooseFolder);
         folderBtn.addEventListener('click', chooseFolder);
 
+        function showReopen() {
+          reopenName.textContent = waiting.length
+            ? waiting[0].handle.name + (waiting.length > 1 ? ' (+' + (waiting.length - 1) + ')' : '')
+            : '';
+          if (!LIB[activeStyle]) panel();
+        }
+
+        // Each folder needs its own click: a permission prompt spends the gesture.
         reopen.addEventListener('click', function () {
-          var h = saved;
-          if (!h) return;
-          h.requestPermission({ mode: 'read' }).then(function (p) {
-            if (p === 'granted') connect(h);
+          var p = waiting.shift();
+          showReopen();
+          if (!p) return;
+          p.handle.requestPermission({ mode: 'read' }).then(function (state) {
+            if (state === 'granted') connect(p.handle, p.styles, !p.styles);
           });
         });
 
@@ -1693,26 +1748,43 @@ SvgPicture.asset(
             var y = b.webkitRelativePath;
             return x < y ? -1 : x > y ? 1 : 0;
           });
-          useFolder((files[0].webkitRelativePath || '').split('/')[0] || 'your folder', scanFiles(files));
+          addFolder((files[0].webkitRelativePath || '').split('/')[0] || 'your folder', scanFiles(files));
         });
 
         applyStyle();
 
-        // A return visit: if Chrome already allows the folder, open it straight
-        // away; otherwise one click on Reopen asks.
+        // A return visit: folders Chrome still allows open straight away; the
+        // rest wait for a click on Reopen. ('folder' is the one-folder record
+        // an earlier version of this page kept.)
         try {
           if (window.showDirectoryPicker && window.indexedDB) {
             kv('readonly', function (s) {
-              return s.get('folder');
+              return s.get('folders');
             })
-              .then(function (h) {
-                if (!h || !h.queryPermission) return;
-                return h.queryPermission({ mode: 'read' }).then(function (p) {
-                  if (p === 'granted') return connect(h);
-                  if (p !== 'prompt' || SRC) return;
-                  saved = h;
-                  reopenName.textContent = h.name;
-                  panel();
+              .then(function (list) {
+                if (list && list.length) return list;
+                return kv('readonly', function (s) {
+                  return s.get('folder');
+                }).then(function (h) {
+                  return h ? [{ handle: h, styles: null }] : [];
+                });
+              })
+              .then(function (list) {
+                // A pick made while this was loading wins over what's stored.
+                if (!picks.length) {
+                  picks = list.filter(function (p) {
+                    return p.styles;
+                  });
+                }
+                list.forEach(function (p) {
+                  if (!p.handle || !p.handle.queryPermission) return;
+                  p.handle.queryPermission({ mode: 'read' }).then(function (state) {
+                    if (state === 'granted') connect(p.handle, p.styles, !p.styles);
+                    else if (state === 'prompt') {
+                      waiting.push(p);
+                      showReopen();
+                    }
+                  });
                 });
               })
               .catch(function () {});

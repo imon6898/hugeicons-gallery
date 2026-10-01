@@ -22,10 +22,10 @@ Hug_Icon/
   Bulk/
 ```
 
-One pick fills every tab. Chrome and Edge remember the folder, so a later visit opens it again
-with at most one click on **Reopen**; Firefox and Safari ask each visit. A style folder can sit a
-level or two down, as it does in Hugeicons' own download, and picking a single style's folder
-works too.
+One pick fills every tab. Or add the style folders one at a time — each pick fills its own tab
+and leaves the others alone. Chrome and Edge remember what you picked, so a later visit opens it
+again with at most one click on **Reopen** per folder; Firefox and Safari ask each visit. A style
+folder can sit a level or two down, as it does in Hugeicons' own download.
 
 The export carries some leftovers, which the page tidies as it reads:
 
